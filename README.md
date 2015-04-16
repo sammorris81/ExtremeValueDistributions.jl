@@ -1,1 +1,1 @@
-# ExtremeValueDistributions
+# ExtremeValueDistributions.jl
