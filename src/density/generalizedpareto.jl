@@ -11,8 +11,16 @@ immutable GeneralizedPareto <: ContinuousUnivariateDistribution
   GeneralizedPareto() = new(1.0, 1.0, 1.0)
 end
 
-# Cannot get this to work properly for now (hoping it's not super important).
-@distr_support(GeneralizedPareto, d.μ, (ξ = d.ξ; ξ < 0.0 ? d.μ - d.σ/ξ : Inf))
+# create support functions
+hasfinitesupport(d::GeneralizedPareto) = false
+islowerbounded(d::GeneralizedPareto) = true
+isupperbounded(d::GeneralizedPareto) = (d.ξ < 0.0 ? true : false)
+isbounded(d::GeneralizedPareto) = islowerbounded(d) && isupperbounded(d)
+minimum(d::GeneralizedPareto) = d.μ
+maximum(d::GeneralizedPareto) = (ξ = d.ξ; ξ < 0.0 ? d.μ - d.σ / ξ : Inf)
+support(d::GeneralizedPareto) = RealInterval(minimum(d), maximum(d))
+insupport(d::GeneralizedPareto, x::Real) = (minimum(d) <= x <= maximum(d))
+
 
 #### Parameters
 
@@ -56,7 +64,7 @@ function logpdf(d::GeneralizedPareto, x::Float64)
   (μ, σ, ξ) = params(d)
   if ξ < 0.0
     ξz = ξ * (x - μ) / σ
-    (ξz >= 0.0 && ξz <= -1.0) ? -log(σ) - (1.0/ξ + 1.0) * log1p(ξz) : -Inf
+    -1.0 <= ξz <= 0.0 ? -log(σ) - (1.0/ξ + 1.0) * log1p(ξz) : -Inf
   elseif ξ == 0.0
     if μ == 0.0
       logpdf(Exponential(σ), x)
@@ -83,8 +91,10 @@ cdf(d::GeneralizedPareto, x::Float64) = 1.0 - ccdf(d, x)
 function logccdf(d::GeneralizedPareto, x::Float64)
   (μ, σ, ξ) = params(d)
   if ξ < 0.0
-     ξz = ξ * (x - μ) / σ
-    (ξz >= 0.0 && ξz <= -1.0) ? -1.0/ξ * log1p(ξz) : 0.0
+     ξz = ξ * (x - μ) / σ  # sign(ξz) == -sign(z), so bounds of ξz are "flipped" vs. bounds of z
+     ξz < -1.0 ? -Inf :
+     ξz > 0.0 ? 0.0 :
+     -1.0/ξ * log1p(ξz)
   elseif ξ == 0.0
     if μ == 0.0
       logccdf(Exponential(σ), x)
