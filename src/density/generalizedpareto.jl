@@ -64,7 +64,7 @@ function logpdf(d::GeneralizedPareto, x::Float64)
   (μ, σ, ξ) = params(d)
   if ξ < 0.0
     ξz = ξ * (x - μ) / σ
-    -1.0 <= ξz <= 0.0 ? -log(σ) - (1.0/ξ + 1.0) * log1p(ξz) : -Inf
+    -1.0 < ξz <= 0.0 ? -log(σ) - (1.0/ξ + 1.0) * log1p(ξz) : -Inf
   elseif ξ == 0.0
     if μ == 0.0
       logpdf(Exponential(σ), x)
@@ -92,7 +92,7 @@ function logccdf(d::GeneralizedPareto, x::Float64)
   (μ, σ, ξ) = params(d)
   if ξ < 0.0
      ξz = ξ * (x - μ) / σ  # sign(ξz) == -sign(z), so bounds of ξz are "flipped" vs. bounds of z
-     ξz < -1.0 ? -Inf :
+     ξz <= -1.0 ? -Inf :
      ξz > 0.0 ? 0.0 :
      -1.0/ξ * log1p(ξz)
   elseif ξ == 0.0
