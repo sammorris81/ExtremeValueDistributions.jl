@@ -11,26 +11,15 @@ immutable GeneralizedExtremeValue <: ContinuousUnivariateDistribution
   GeneralizedExtremeValue() = new(1.0, 1.0, 1.0)
 end
 
-# Cannot get to work currently. Julia says GeneralizedExtremeValue is not defined
-@distr_support(GeneralizedExtremeValue, d.ξ > 0.0 ? d.μ - d.σ / d.ξ : -Inf,
-                d.ξ < 0.0 ? d.μ - d.σ / d.ξ : Inf)
-
-# immutable GEV <: ContinuousUnivariateDistribution
-#   μ::Float64
-#   σ::Float64
-#   ξ::Float64
-
-#   function GeneralizedExtremeValue(μ::Real, σ::Real, ξ::Real)
-#     σ > zero(σ) || error("Scale must be positive")
-#     @compat new(Float64(μ), Float64(σ), Float64(ξ))
-#   end
-
-#   GEV() = new(1.0, 1.0, 1.0)
-# end
-
-# Cannot get to work currently. Julia says GeneralizedExtremeValue is not defined
-# @distr_support(GEV, d.ξ > 0.0 ? d.μ - d.σ / d.ξ : -Inf,  d.ξ < 0.0 ? d.μ - d.σ / d.ξ : Inf)
-
+# create support functions
+hasfinitesupport(d::GeneralizedExtremeValue) = false
+islowerbounded(d::GeneralizedExtremeValue) = (ξ = d.ξ; ξ > 0.0 ? true : false)
+isupperbounded(d::GeneralizedExtremeValue) = (ξ = d.ξ; ξ < 0.0 ? true : false)
+isbounded(d::GeneralizedExtremeValue) = islowerbounded(d) && isupperbounded(d)
+minimum(d::GeneralizedExtremeValue) = (d.ξ > 0.0 ? d.μ - d.σ / d.ξ : -Inf)
+maximum(d::GeneralizedExtremeValue) = (d.ξ < 0.0 ? d.μ - d.σ / d.ξ : Inf)
+support(d::GeneralizedExtremeValue) = RealInterval(minimum(d), maximum(d))
+insupport(d::GeneralizedExtremeValue, x::Real) = (minimum(d) <= x <= maximum(d))
 
 
 #### Parameters
@@ -144,7 +133,7 @@ function quantile(d::GeneralizedExtremeValue, p::Float64)
   if ξ == 0.0
     return xval(d, -log(-log(p)))
   else
-    return xval(d, -(log(p)^(-ξ) - 1.0) / ξ)
+    return xval(d, ((-log(p))^(-ξ) - 1.0) / ξ)
   end
 end
 
@@ -153,7 +142,7 @@ function cquantile(d::GeneralizedExtremeValue, p::Float64)
   if ξ == 0.0
     return xval(d, -log(-log1p(-p)))
   else
-    return xval(d, -(log1p(-p)^(-ξ) - 1.0) / ξ)
+    return xval(d, ((-log1p(-p))^(-ξ) - 1.0) / ξ)
   end
 end
 
