@@ -8,7 +8,7 @@ import Base.Random
 import StatsBase: kurtosis, skewness, entropy, mode, modes, randi, fit, kldivergence
 # get methods from Distributions
 import Distributions: ccdf, cdf, cquantile, invlogccdf, invlogcdf, location
-import Distributions: logccdf, logcdf, mean, median, params, pdf, quantile
+import Distributions: logccdf, logcdf, mean, median, params, logpdf, pdf, quantile
 import Distributions: scale, shape, skewness, var, sample
 # import Distributions: @distr_support
 # get types from Distributions
@@ -29,6 +29,7 @@ export
   location,
   logccdf,
   logcdf,
+  logpdf,
   mean,
   median,
   mode,

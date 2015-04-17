@@ -1,3 +1,23 @@
+minimum(r::RealInterval) = r.lb
+maximum(r::RealInterval) = r.ub
+@compat in(x::Real, r::RealInterval) = (r.lb <= Float64(x) <= r.ub)
+
+isbounded(d::UnivariateDistribution) = isupperbounded(d) && islowerbounded(d)
+hasfinitesupport(d::DiscreteUnivariateDistribution) = isbounded(d)
+hasfinitesupport(d::ContinuousUnivariateDistribution) = false
+
+function insupport!{D<:UnivariateDistribution}(r::AbstractArray, d::Union(D,Type{D}), X::AbstractArray)
+    length(r) == length(X) ||
+        throw(DimensionMismatch("Inconsistent array dimensions."))
+    for i in 1 : length(X)
+        @inbounds r[i] = insupport(d, X[i])
+    end
+    return r
+end
+
+insupport{D<:UnivariateDistribution}(d::Union(D,Type{D}), X::AbstractArray) =
+     insupport!(BitArray(size(X)), d, X)
+
 # This macro is copied directly from Distributions.jl, If we just import it from the Distributions package,
 # it doesn't let us evaluate the macro using either GeneralizedExtremeValue or GeneralizedPareto.
 macro distr_support(D, lb, ub)
