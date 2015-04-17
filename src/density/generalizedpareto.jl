@@ -12,7 +12,7 @@ immutable GeneralizedPareto <: ContinuousUnivariateDistribution
 end
 
 # Cannot get this to work properly for now (hoping it's not super important).
-# @distr_support(GeneralizedPareto, d.μ, (ξ = d.ξ; ξ < 0.0 ? d.μ - d.σ/ξ : Inf))
+@distr_support(GeneralizedPareto, d.μ, (ξ = d.ξ; ξ < 0.0 ? d.μ - d.σ/ξ : Inf))
 
 #### Parameters
 

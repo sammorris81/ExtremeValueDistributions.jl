@@ -1,7 +1,3 @@
-using Compat
-using Distributions
-import Distributions.@distr_support
-
 immutable GeneralizedExtremeValue <: ContinuousUnivariateDistribution
   μ::Float64
   σ::Float64
@@ -16,8 +12,25 @@ immutable GeneralizedExtremeValue <: ContinuousUnivariateDistribution
 end
 
 # Cannot get to work currently. Julia says GeneralizedExtremeValue is not defined
-# @distr_support(GeneralizedExtremeValue, d.ξ > 0.0 ? d.μ - d.σ / d.ξ : -Inf,
-#                d.ξ < 0.0 ? d.μ - d.σ / d.ξ : Inf)
+@distr_support(GeneralizedExtremeValue, d.ξ > 0.0 ? d.μ - d.σ / d.ξ : -Inf,
+                d.ξ < 0.0 ? d.μ - d.σ / d.ξ : Inf)
+
+# immutable GEV <: ContinuousUnivariateDistribution
+#   μ::Float64
+#   σ::Float64
+#   ξ::Float64
+
+#   function GeneralizedExtremeValue(μ::Real, σ::Real, ξ::Real)
+#     σ > zero(σ) || error("Scale must be positive")
+#     @compat new(Float64(μ), Float64(σ), Float64(ξ))
+#   end
+
+#   GEV() = new(1.0, 1.0, 1.0)
+# end
+
+# Cannot get to work currently. Julia says GeneralizedExtremeValue is not defined
+# @distr_support(GEV, d.ξ > 0.0 ? d.μ - d.σ / d.ξ : -Inf,  d.ξ < 0.0 ? d.μ - d.σ / d.ξ : Inf)
+
 
 
 #### Parameters
