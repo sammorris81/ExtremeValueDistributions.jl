@@ -30,6 +30,7 @@ shape(d::GeneralizedExtremeValue) = d.ξ
 params(d::GeneralizedExtremeValue) = (d.μ, d.σ, d.ξ)
 
 #### Statistics
+g(d::GeneralizedExtremeValue, k::Real) = gamma(1 - k * d.ξ)
 
 function mean(d::GeneralizedExtremeValue)
   ξ = d.ξ
@@ -65,14 +66,23 @@ function var(d::GeneralizedExtremeValue)
   if ξ == 0.0
     return d.σ^2.0 * 1.6449340668482264
   elseif ξ < 0.5
-    return d.σ^2 * (gamma(1.0 - 2.0 * ξ) - (gamma(1.0 - ξ))^2.0) / ξ^2.0
+    return d.σ^2 * (g(d, 2.0) - g(d, 1.0)^2.0) / ξ^2.0
   else
     return Inf
   end
 end
 
 function skewness(d::GeneralizedExtremeValue)
-
+  ξ = d.ξ
+  if ξ == 0
+    # these are constant values from 12 * sqrt(6) zeta(3) / pi^3
+    return 29.393876913398135 * 1.2020569031595951 / 31.006276680299816
+  else
+    g1 = g(d, 1)
+    g2 = g(d, 2)
+    g3 = g(d, 3)
+    return sign(ξ) * (g3 - 3 * g1 * g2 + 2 * g1^3) / (g2 - g1^2)^(1.5)
+  end
 end
 
 function kurtosis(d::GeneralizedExtremeValue)
@@ -80,7 +90,11 @@ function kurtosis(d::GeneralizedExtremeValue)
   if ξ == 0.0
     return 2.4
   elseif ξ < 0.25
-    return
+    g1 = g(d, 1)
+    g2 = g(d, 2)
+    g3 = g(d, 3)
+    g4 = g(d, 4)
+    return (g4 - 4 * g1 * g3 + 6 * g2 * g1^2 - 3 * g1^4) / (g2 - g1^2)^2 - 3
   else
     return Inf
   end
