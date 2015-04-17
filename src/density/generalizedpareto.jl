@@ -11,7 +11,8 @@ immutable GeneralizedPareto <: ContinuousUnivariateDistribution
   GeneralizedPareto() = new(1.0, 1.0, 1.0)
 end
 
-@distr_support(GeneralizedPareto, d.μ, (ξ = d.ξ; ξ < 0.0 ? d.μ - d.σ/ξ : Inf)
+# Cannot get this to work properly for now (hoping it's not super important).
+# @distr_support(GeneralizedPareto, d.μ, (ξ = d.ξ; ξ < 0.0 ? d.μ - d.σ/ξ : Inf))
 
 #### Parameters
 
@@ -112,7 +113,6 @@ function cquantile(d::GeneralizedPareto, p::Float64)
   end
 end
 
-expm1(-ξ * log(p))
 quantile(d::GeneralizedPareto, p::Float64) = cquantile(d, 1.0 - p)
 
 
