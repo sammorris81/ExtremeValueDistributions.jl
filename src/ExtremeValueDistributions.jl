@@ -56,7 +56,7 @@ export
   skewness,
   support,
   var,
-  sample,
+  sample
 
   # fitting
   # mcmc_gev
