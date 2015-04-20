@@ -76,5 +76,5 @@ Let `d` be a distribution of type `GeneralizedExtremeValue` or `GeneralizedParet
 
 ### Model fitting
 
-* [**fit_mle**] (./src/mle/)
-* [**fit_mcmc**] (./src/bayes/)
+* [Maximum likelihood] (./src/mle/)
+* [MCMC] (./src/bayes/)
