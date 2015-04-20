@@ -2,7 +2,7 @@ module ExtremeValueDistributions
 
 using Distributions
 using Compat
-# using MetropolisUpdaters  # types for Bayes fitting
+using MetropolisUpdaters  # types for Bayes fitting
 
 # get methods from Base
 import Base.Random
@@ -26,6 +26,10 @@ export
   # distribution types
   GeneralizedPareto,
   GeneralizedExtremeValue,
+  # mcmc types
+  ExtremePosterior,
+  GeneralizedExtremeValuePosterior,
+  GeneralizedParetoPosterior,
 
   # methods
   ccdf,
@@ -56,16 +60,17 @@ export
   skewness,
   support,
   var,
-  sample
+  sample,
 
   # fitting
-  # mcmc_gev
+  fit_mcmc
 
 
 ### source files
 include("density/generalizedpareto.jl")
 include("density/generalizedextreme.jl")
-# include("bayes/generalizedextreme.jl")
-# include("bayes/generalizedpareto.jl")
+include("bayes/mcmc.jl")
+include("bayes/generalizedextreme.jl")
+include("bayes/generalizedpareto.jl")
 
 end # module
