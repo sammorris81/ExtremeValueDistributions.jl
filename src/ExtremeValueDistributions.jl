@@ -2,6 +2,7 @@ module ExtremeValueDistributions
 
 using Distributions
 using Compat
+# using MetropolisUpdaters  # types for Bayes fitting
 
 # get methods from Base
 import Base.Random
@@ -17,6 +18,9 @@ import Distributions: scale, shape, skewness, support, var, sample
 # import Distributions: @distr_support
 # get types from Distributions
 import Distributions: ContinuousUnivariateDistribution
+
+# for mcmc
+# import Base.LinAlg.BLAS.gemv!
 
 export
   # distribution types
@@ -52,10 +56,16 @@ export
   skewness,
   support,
   var,
-  sample
+  sample,
+
+  # fitting
+  # mcmc_gev
+
 
 ### source files
 include("density/generalizedpareto.jl")
 include("density/generalizedextreme.jl")
+# include("bayes/generalizedextreme.jl")
+# include("bayes/generalizedpareto.jl")
 
 end # module
