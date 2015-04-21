@@ -24,6 +24,7 @@ The interface for ExtremeValueDistributions utilizes the common interface of Dis
 ### Generalized extreme value distribution
 
 To generate a generalized extreme value distribution, use the function `GeneralizedExtremeValue(μ, σ, ξ)` where
+
 * `μ` is the location parameter
 * `σ` is the scale parameter
 * `ξ` is the shape parameter
@@ -31,6 +32,7 @@ To generate a generalized extreme value distribution, use the function `Generali
 ### Generalized Pareto distribution
 
 To generate a generalized Pareto distribution, use the function `GeneralizedPareto(μ, σ, ξ)` where
+
 * `μ` is the location parameter
 * `σ` is the scale parameter
 * `ξ` is the shape parameter
@@ -76,5 +78,5 @@ Let `d` be a distribution of type `GeneralizedExtremeValue` or `GeneralizedParet
 
 ### Model fitting
 
-* [Maximum likelihood] (./src/mle/)
-* [MCMC] (./src/bayes/)
+* [Maximum likelihood](./src/mle/)
+* [MCMC](./src/bayes/)

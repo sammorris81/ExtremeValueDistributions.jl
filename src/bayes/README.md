@@ -4,7 +4,7 @@ We have implemented a random walk metropolis hastings MCMC sampler to fit model 
 
 ## Common interface
 
-Let `y` be an *n* x *1* vector of responses. The method `fit_mcmc()` is used to fit the GEV or GPD distribution. By default `fit_mcmc(GeneralizedExtremeValue, y)` fits a GEV (μ, σ, ξ) distribution to the data, and `fit_mcmc(GeneralizedPareto, y)` fits a GPD (0.0, σ, ξ) distribution. Optional named arguments include:
+Let `y` be an *n* x 1 vector of responses. The method `fit_mcmc()` is used to fit the GEV or GPD distribution. By default `fit_mcmc(GeneralizedExtremeValue, y)` fits a GEV (μ, σ, ξ) distribution to the data, and `fit_mcmc(GeneralizedPareto, y)` fits a GPD (0.0, σ, ξ) distribution. Optional named arguments include:
 
 * `Xμ`: matrix of covariates for μ (Default = `ones(y)`, *GEV only*)
 * `μ`: threshold value (Default = 0.0, *GPD only*)
@@ -31,6 +31,7 @@ The results from fitting the model using MCMC are of type `GeneralizedExtremeVal
 
 Let `results` be a type of `GeneralizedExtremeValuePosterior` or `GeneralizedParetoPosterior`.
 The full list of fields is
+
 * `results.y`: Response variable
 * `results.ns`: Number of responses per day
 * `results.nt`: Number of days
@@ -54,6 +55,7 @@ Posterior samples are available as matrices in `results.βμpost`, `results.βσ
 ### MetropolisParameters
 
 Three MetropolisParameter types `results.βμ`, `results.βσ`, and `results.βξ` are included in the results from the MCMC. This type is still under development, but we have included some basic documentation here. The following fields give information about the prior distributions used along with information about final candidate standard deviation and acceptance rates. Here are some of the more useful fields in the MetropolisParameter type.
+
 * Post-burnin acceptance rates: `results.βμ.acc ./ results.βμ.att`
 * Prior distribution: `results.βμ.prior`
 * Sequential update: `results.βμ.seq`
