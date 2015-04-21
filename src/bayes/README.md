@@ -5,6 +5,7 @@ We have implemented a random walk metropolis hastings MCMC sampler to fit model 
 ## Common interface
 
 Let `y` be an *n* x *1* vector of responses. The method `fit_mcmc()` is used to fit the GEV or GPD distribution. By default `fit_mcmc(GeneralizedExtremeValue, y)` fits a GEV (μ, σ, ξ) distribution to the data, and `fit_mcmc(GeneralizedPareto, y)` fits a GPD (0.0, σ, ξ) distribution. Optional named arguments include:
+
 * `Xμ`: matrix of covariates for μ (Default = `ones(y)`, *GEV only*)
 * `μ`: threshold value (Default = 0.0, *GPD only*)
 * `Xσ`: matrix of covariates for σ (Default = `ones(y)`)
