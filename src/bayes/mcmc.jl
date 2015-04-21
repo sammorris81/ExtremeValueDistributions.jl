@@ -45,6 +45,7 @@ function fit_mcmc(::Type{GeneralizedExtremeValue}, y::Array{Float64};
                   Xξ::Array{Float64}=ones(y),
                   βμsd::Real=100.0, βσsd::Real=100.0, βξsd::Real=1.0,
                   βμtune::Real=1.0, βσtune::Real=1.0, βξtune::Real=1.0,
+                  βμseq::Bool=true, βσseq::Bool=true, βξseq::Bool=true,
                   iters::Integer=30000, burn::Integer=10000, thin::Integer=1,
                   verbose::Bool=false, report::Integer=1000)
 
@@ -59,6 +60,9 @@ function fit_mcmc(::Type{GeneralizedExtremeValue}, y::Array{Float64};
     # βμtune: metropolis jump size for candidates βμ
     # βσtune: metropolis jump size for candidates βσ
     # βξtune: metropolis jump size for candidates βξ
+    # βμseq: update β parameters for μ sequentially (true) or block (false)
+    # βσseq: update β parameters for σ sequentially (true) or block (false)
+    # βξseq: update β parameters for ξ sequentially (true) or block (false)
     # iters: number of iterations to run the mcmc
     # burn: length of burnin period
     # thin: thinning length
@@ -66,7 +70,7 @@ function fit_mcmc(::Type{GeneralizedExtremeValue}, y::Array{Float64};
     # report: how often to print out updates
 
   # returns:
-    # (βμ, βσ, βξ): tuple of the posterior samples for the GEV parameters
+    # gevfit: GeneralizedExtremeValuePosterior type with posterior samples
 
   # model being fit:
     # y ~ GeneralizedExtremeValue(μ, σ, ξ)
@@ -89,9 +93,12 @@ function fit_mcmc(::Type{GeneralizedExtremeValue}, y::Array{Float64};
   gevfit.Xξ = Xξ
 
   # parameters for the mcmc
-  gevfit.βμ = createmetropolis(npμ, prior=Distributions.Normal(0.0, βμsd), tune=βμtune)
-  gevfit.βσ = createmetropolis(npσ, prior=Distributions.Normal(0.0, βσsd), tune=βσtune)
-  gevfit.βξ = createmetropolis(npξ, prior=Distributions.Normal(0.0, βξsd), tune=βξtune)
+  gevfit.βμ = createmetropolis(npμ, prior=Distributions.Normal(0.0, βμsd),
+                               tune=βμtune, seq=βμseq)
+  gevfit.βσ = createmetropolis(npσ, prior=Distributions.Normal(0.0, βσsd),
+                               tune=βσtune, seq=βσseq)
+  gevfit.βξ = createmetropolis(npξ, prior=Distributions.Normal(0.0, βξsd),
+                               tune=βξtune, seq=βξseq)
 
   # storage for the posterior samples
   gevfit.βμpost = fill(0.0, iters, gevfit.βμ.length)
@@ -115,6 +122,7 @@ function fit_mcmc(::Type{GeneralizedPareto}, y::Array{Float64};
                   Xξ::Array{Float64}=ones(y),
                   βσsd::Real=100.0, βξsd::Real=1.0,
                   βσtune::Real=1.0, βξtune::Real=1.0,
+                  βσseq::Bool=true, βξseq::Bool=true,
                   iters::Integer=30000, burn::Integer=10000, thin::Integer=1,
                   verbose::Bool=false, report::Integer=1000)
   # arguments:
@@ -125,6 +133,8 @@ function fit_mcmc(::Type{GeneralizedPareto}, y::Array{Float64};
     # βξsd: prior standard deviation for β parameters for ξ
     # βσtune: metropolis jump size for candidates βσ
     # βξtune: metropolis jump size for candidates βξ
+    # βσseq: update β parameters for σ sequentially (true) or block (false)
+    # βξseq: update β parameters for ξ sequentially (true) or block (false)
     # iters: number of iterations to run the mcmc
     # burn: length of burnin period
     # thin: thinning length
@@ -132,7 +142,7 @@ function fit_mcmc(::Type{GeneralizedPareto}, y::Array{Float64};
     # report: how often to print out updates
 
   # returns:
-    # (βσ, βξ): tuple of the posterior samples for the GEV parameters
+    # gevfit: GeneralizedExtremeValuePosterior type with posterior samples
 
   # model being fit:
     # y ~ GeneralizedPareto(μ, σ, ξ)
@@ -153,8 +163,10 @@ function fit_mcmc(::Type{GeneralizedPareto}, y::Array{Float64};
   gpdfit.Xξ = Xξ
 
   # parameters for the mcmc
-  gpdfit.βσ = createmetropolis(npσ, prior=Distributions.Normal(0.0, βσsd), tune=βσtune)
-  gpdfit.βξ = createmetropolis(npξ, prior=Distributions.Normal(0.0, βξsd), tune=βξtune)
+  gpdfit.βσ = createmetropolis(npσ, prior=Distributions.Normal(0.0, βσsd),
+                               tune=βσtune, seq=βσseq)
+  gpdfit.βξ = createmetropolis(npξ, prior=Distributions.Normal(0.0, βξsd),
+                               tune=βξtune, seq=βξseq)
 
   # storage for the posterior samples
   gpdfit.βσpost = fill(0.0, iters, gpdfit.βσ.length)
