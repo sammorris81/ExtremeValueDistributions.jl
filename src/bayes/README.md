@@ -5,24 +5,24 @@ We have implemented a random walk metropolis hastings MCMC sampler to fit model 
 ## Common interface
 
 Let `y` be an *n* x *1* vector of responses. The method `fit_mcmc()` is used to fit the GEV or GPD distribution. By default `fit_mcmc(GeneralizedExtremeValue, y)` fits a GEV(μ, σ, ξ) distribution to the data, and `fit_mcmc(GeneralizedPareto, y)` fits a GPD(0.0, σ, ξ) distribution. Optional named arguments include:
-* `Xμ`: matrix of covariates for μ (*GEV only*)
-* `μ`: threshold value (*GPD only*)
-* `Xσ`: matrix of covariates for σ
-* `Xξ`: matrix of covariates for ξ
+* `Xμ`: matrix of covariates for μ (Default = `ones(y)`, *GEV only*)
+* `μ`: threshold value (Default = 0.0, *GPD only*)
+* `Xσ`: matrix of covariates for σ (Default = `ones(y)`)
+* `Xξ`: matrix of covariates for ξ (Default = `ones(y)`)
 * `βμsd`: prior standard deviation for β parameters for μ (Default = 100.0, *GEV only*)
 * `βσsd`: prior standard deviation for β parameters for σ (Default = 100.0)
 * `βξsd`: prior standard deviation for β parameters for ξ (Default = 1.0)
 * `βμtune`: starting metropolis jump size for candidates βμ (Default = 1.0, *GEV only*)
 * `βσtune`: starting metropolis jump size for candidates βσ (Default = 1.0)
 * `βξtune`: starting metropolis jump size for candidates βξ (Default = 1.0)
-* `βμseq`: update β parameters for μ sequentially (true) or block (false) (*GEV only*)
-* `βσseq`: update β parameters for σ sequentially (true) or block (false)
-* `βξseq`: update β parameters for ξ sequentially (true) or block (false)
-* `iters`: number of iterations to run the mcmc
-* `burn`: length of burnin period
-* `thin`: thinning length
-* `verbose`: do we want to print out periodic updates
-* `report`: how often to print out updates
+* `βμseq`: update β parameters for μ sequentially (true) or block (false) (Default = true, *GEV only*)
+* `βσseq`: update β parameters for σ sequentially (true) or block (false) (Default = true)
+* `βξseq`: update β parameters for ξ sequentially (true) or block (false) (Default = true)
+* `iters`: number of iterations to run the mcmc (Default = 30000)
+* `burn`: length of burnin period (Default = 10000)
+* `thin`: thinning length (Default = 1)
+* `verbose`: do we want to print out periodic updates (Default = false)
+* `report`: how often to print out updates (Default = 1000)
 
 The results from fitting the model using MCMC are of type `GeneralizedExtremeValuePosterior` or `GeneralizedParetoPosterior` depending on the type of distribution fit.
 
