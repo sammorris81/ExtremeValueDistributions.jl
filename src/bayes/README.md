@@ -9,10 +9,10 @@ Let `y` be an *n* x *1* vector of responses. The method `fit_mcmc()` is used to 
 * `μ`: threshold value (*GPD only*)
 * `Xσ`: matrix of covariates for σ
 * `Xξ`: matrix of covariates for ξ
-* `βμsd`: prior standard deviation for β parameters for μ (*GEV only*, Default = 100.0)
+* `βμsd`: prior standard deviation for β parameters for μ (Default = 100.0, *GEV only*)
 * `βσsd`: prior standard deviation for β parameters for σ (Default = 100.0)
 * `βξsd`: prior standard deviation for β parameters for ξ (Default = 1.0)
-* `βμtune`: starting metropolis jump size for candidates βμ (*GEV only*, Default = 1.0)
+* `βμtune`: starting metropolis jump size for candidates βμ (Default = 1.0, *GEV only*)
 * `βσtune`: starting metropolis jump size for candidates βσ (Default = 1.0)
 * `βξtune`: starting metropolis jump size for candidates βξ (Default = 1.0)
 * `βμseq`: update β parameters for μ sequentially (true) or block (false) (*GEV only*)
@@ -30,21 +30,21 @@ The results from fitting the model using MCMC are of type `GeneralizedExtremeVal
 
 Let `results` be a type of `GeneralizedExtremeValuePosterior` or `GeneralizedParetoPosterior`.
 The full list of fields is
-* `y`: Response variable
-* `ns`: Number of responses per day
-* `nt`: Number of days
-* `Xμ`: Covariates for fitting μ (*GEV only*)
-* `Xσ`: Covariates for fitting σ
-* `Xξ`: Covariates for fitting ξ
-* `βμ`: MetropolisParameter type for regression coefficients for μ. (*GEV only*)
-* `βσ`: MetropolisParameter type for regression coefficients for σ.
-* `βξ`: MetropolisParameter type for regression coefficients for ξ.
-* `βμpost`: Posterior samples for βμ (*GEV only*)
-* `βσpost`: Posterior samples for βσ
-* `βξpost`: Posterior samples for βξ
-* `iters`: Number of iterations in the MCMC
-* `burn`: Length of burnin period
-* `thin`: How much thinning was used
+* `results.y`: Response variable
+* `results.ns`: Number of responses per day
+* `results.nt`: Number of days
+* `results.Xμ`: Covariates for fitting μ (*GEV only*)
+* `results.Xσ`: Covariates for fitting σ
+* `results.Xξ`: Covariates for fitting ξ
+* `results.βμ`: MetropolisParameter type for regression coefficients for μ. (*GEV only*)
+* `results.βσ`: MetropolisParameter type for regression coefficients for σ.
+* `results.βξ`: MetropolisParameter type for regression coefficients for ξ.
+* `results.βμpost`: Posterior samples for βμ (*GEV only*)
+* `results.βσpost`: Posterior samples for βσ
+* `results.βξpost`: Posterior samples for βξ
+* `results.iters`: Number of iterations in the MCMC
+* `results.burn`: Length of burnin period
+* `results.thin`: How much thinning was used
 
 ### Posterior samples
 
