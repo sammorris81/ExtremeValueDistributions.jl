@@ -23,7 +23,7 @@ end
 type GeneralizedParetoPosterior <: ExtremePosterior
   y::Array{Float64}        # response variable
   n::Integer               # number of responses per day
-  μ::Real                  # GPD location parameter
+  μ::Array{Float64}        # GPD location parameter
   Xσ::Array{Float64}       # covariates for fitting σ
   Xξ::Array{Float64}       # covariates for fitting ξ
   βσ::MetropolisParameter  # metropolis parameters for βσ
@@ -38,7 +38,7 @@ type GeneralizedParetoPosterior <: ExtremePosterior
   GeneralizedParetoPosterior() = new()
 end
 
-function fit_mcmc(::Type{GeneralizedExtremeValue}, y::Array{Float64};
+function fit_mcmc(::Type{GeneralizedExtremeValue}, y::Array{Float64, 1};
                   Xμ::Array{Float64}=ones(y), Xσ::Array{Float64}=ones(y),
                   Xξ::Array{Float64}=ones(y),
                   βμsd::Real=100.0, βσsd::Real=100.0, βξsd::Real=1.0,
@@ -114,7 +114,8 @@ function fit_mcmc(::Type{GeneralizedExtremeValue}, y::Array{Float64};
   return gevfit
 end
 
-function fit_mcmc(::Type{GeneralizedExtremeValue}, y::DataArray{Float64};
+#
+function fit_mcmc(::Type{GeneralizedExtremeValue}, y::DataArray{Float64, 1};
                   Xμ::DataArray{Float64} = ones(y), Xσ::DataArray{Float64} = ones(y),
                   Xξ::DataArray{Float64} = ones(y),
                   βμsd::Real = 100.0, βσsd::Real = 100.0, βξsd::Real = 1.0,
@@ -122,6 +123,21 @@ function fit_mcmc(::Type{GeneralizedExtremeValue}, y::DataArray{Float64};
                   βμseq::Bool = true, βσseq::Bool = true, βξseq::Bool = true,
                   iters::Integer = 30000, burn::Integer = 10000, thin::Integer = 1,
                   verbose::Bool = false, report::Integer = 1000)
+
+  # remove NAs
+  these = find(!isna(y))
+  if length(these) != size(y, 1)
+    println("Keeping $(length(these)) out of $(length(y)) observations. Remaining observations removed due to NA")
+    y = y[these]
+    Xμ = size(Xμ, 2) == 1 ? Xμ[these] : Xμ[these, :]
+    Xσ = size(Xσ, 2) == 1 ? Xσ[these] : Xσ[these, :]
+    Xξ = size(Xξ, 2) == 1 ? Xξ[these] : Xξ[these, :]
+  end
+
+  # make sure that n matches for y, Xμ, Xσ, and Xξ
+  @assert size(y, 1) == size(Xμ, 1)
+  @assert size(y, 1) == size(Xσ, 1)
+  @assert size(y, 1) == size(Xξ, 1)
 
   # basic functionality for dataframes
   gevfit = fit_mcmc(GeneralizedExtremeValue, array(y);
@@ -134,8 +150,8 @@ function fit_mcmc(::Type{GeneralizedExtremeValue}, y::DataArray{Float64};
   return gevfit
 end
 
-function fit_mcmc(::Type{GeneralizedPareto}, y::Array{Float64};
-                  μ::Array{Float64} = zeros(y), Xσ::Array{Float64} = ones(y),
+function fit_mcmc(::Type{GeneralizedPareto}, y::Array{Float64, 1}, μ::Array{Float64};
+                  Xσ::Array{Float64} = ones(y),
                   Xξ::Array{Float64} = ones(y),
                   βσsd::Real = 100.0, βξsd::Real = 1.0,
                   βσtune::Real = 1.0, βξtune::Real = 1.0,
@@ -174,6 +190,16 @@ function fit_mcmc(::Type{GeneralizedPareto}, y::Array{Float64};
 
   # data and covariates for MCMC
   @assert n == size(μ, 1)  # make sure that a user-defined μ array is the correct length
+  these = find(y .> μ)     # to reduce computation only use values above the threshold
+  if length(these) > 0
+    println("Fitting MCMC using the $(length(these)) observations above the threshold.")
+    n  = length(these)
+    y  = y[these]
+    μ  = μ[these]
+    Xσ = size(Xσ, 2) == 1 ? Xσ[these] : Xσ[these, :]
+    Xξ = size(Xξ, 2) == 1 ? Xξ[these] : Xξ[these, :]
+  end
+
   gpdfit.n  = n
   gpdfit.y  = y
   gpdfit.μ  = μ
@@ -200,8 +226,8 @@ function fit_mcmc(::Type{GeneralizedPareto}, y::Array{Float64};
   return gpdfit
 end
 
-function fit_mcmc(::Type{GeneralizedPareto}, y::Array{Float64};
-                  μ::Real = 0.0, Xσ::Array{Float64} = ones(y),
+function fit_mcmc(::Type{GeneralizedPareto}, y::Array{Float64, 1}, μ::Real;
+                  Xσ::Array{Float64} = ones(y),
                   Xξ::Array{Float64} = ones(y),
                   βσsd::Real = 100.0, βξsd::Real = 1.0,
                   βσtune::Real = 1.0, βξtune::Real = 1.0,
@@ -210,8 +236,8 @@ function fit_mcmc(::Type{GeneralizedPareto}, y::Array{Float64};
                   verbose::Bool = false, report::Integer = 1000)
 
   # basic functionality for dataframes with single threshold
-  μ = fill(μ, size(y, 1))
-  gpdfit = fit_mcmc(GeneralizedPareto, y; μ = μ,
+  μ = fill(float(μ), size(y, 1))
+  gpdfit = fit_mcmc(GeneralizedPareto, y, μ;
                     Xσ = Xσ, Xξ = Xξ,
                     βσsd = βσsd, βξsd = βξsd,
                     βσtune = βσtune, βξtune = βξtune,
@@ -221,8 +247,8 @@ function fit_mcmc(::Type{GeneralizedPareto}, y::Array{Float64};
   return gpdfit
 end
 
-function fit_mcmc(::Type{GeneralizedPareto}, y::DataArray{Float64};
-                  μ::Real = 0.0, Xσ::DataArray{Float64} = ones(y),
+function fit_mcmc(::Type{GeneralizedPareto}, y::DataArray{Float64, 1}, μ::Real;
+                  Xσ::DataArray{Float64} = ones(y),
                   Xξ::DataArray{Float64} = ones(y),
                   βσsd::Real = 100.0, βξsd::Real = 1.0,
                   βσtune::Real = 1.0, βξtune::Real = 1.0,
@@ -230,9 +256,23 @@ function fit_mcmc(::Type{GeneralizedPareto}, y::DataArray{Float64};
                   iters::Integer = 30000, burn::Integer = 10000, thin::Integer = 1,
                   verbose::Bool = false, report::Integer = 1000)
 
+  # remove NAs
+  these = find(!isna(y))
+  if length(these) != size(y, 1)
+    println("Keeping $(length(these)) out of $(length(y)) observations. Remaining observations removed due to NA")
+    y = y[these]
+    Xσ = size(Xσ, 2) == 1 ? Xσ[these] : Xσ[these, :]
+    Xξ = size(Xξ, 2) == 1 ? Xξ[these] : Xξ[these, :]
+  end
+
+  # make sure that n matches for y, Xμ, Xσ, and Xξ
+  @assert size(y, 1) == size(Xσ, 1)
+  @assert size(y, 1) == size(Xξ, 1)
+
   # basic functionality for dataframes with single threshold
-  μ = fill(μ, size(y, 1))
-  gpdfit = fit_mcmc(GeneralizedPareto, array(y); μ = μ,
+  μ = fill(float(μ), size(y, 1))
+
+  gpdfit = fit_mcmc(GeneralizedPareto, array(y), μ;
                     Xσ = array(Xσ), Xξ = array(Xξ),
                     βσsd = βσsd, βξsd = βξsd,
                     βσtune = βσtune, βξtune = βξtune,
@@ -242,8 +282,8 @@ function fit_mcmc(::Type{GeneralizedPareto}, y::DataArray{Float64};
   return gpdfit
 end
 
-function fit_mcmc(::Type{GeneralizedPareto}, y::DataArray{Float64};
-                  μ::Array{Float64} = zeros(y), Xσ::DataArray{Float64} = ones(y),
+function fit_mcmc(::Type{GeneralizedPareto}, y::DataArray{Float64}, μ::Array{Float64};
+                  Xσ::DataArray{Float64} = ones(y),
                   Xξ::DataArray{Float64} = ones(y),
                   βσsd::Real = 100.0, βξsd::Real = 1.0,
                   βσtune::Real = 1.0, βξtune::Real = 1.0,
@@ -252,7 +292,7 @@ function fit_mcmc(::Type{GeneralizedPareto}, y::DataArray{Float64};
                   verbose::Bool = false, report::Integer = 1000)
 
   # basic functionality for dataframes
-  gpdfit = fit_mcmc(GeneralizedPareto, array(y); μ = μ,
+  gpdfit = fit_mcmc(GeneralizedPareto, array(y), μ;
                     Xσ = array(Xσ), Xξ = array(Xξ),
                     βσsd = βσsd, βξsd = βξsd,
                     βσtune = βσtune, βξtune = βξtune,
@@ -263,12 +303,12 @@ function fit_mcmc(::Type{GeneralizedPareto}, y::DataArray{Float64};
 end
 
 #### functions to update calculated values for mcmc
-function updateXβ!(Xβ::CalculatedValues, X::Array{Float64, 2}, β::MetropolisVector)
-  activevalue(Xβ)[:, :] = X * activevalue(β)
+function updateXβ!(Xβ::CalculatedValuesVector, X::Array{Float64, 2}, β::MetropolisVector)
+  activevalue(Xβ)[:] = X * activevalue(β)
 end
 
 function updatellgev!(ll::CalculatedValuesVector, y::Array{Float64},
-                      μ::CalculatedValues, σ::CalculatedValues, ξ::CalculatedValues)
+                      μ::CalculatedValuesVector, σ::CalculatedValuesVector, ξ::CalculatedValuesVector)
   this_μ = activevalue(μ)
   this_σ = exp(activevalue(σ))
   this_ξ = activevalue(ξ)
@@ -278,16 +318,12 @@ function updatellgev!(ll::CalculatedValuesVector, y::Array{Float64},
   end
 end
 
-function updatellgpd!(ll::CalculatedValuesMatrix, y::Array{Float64},
-                      μ::Array{Float64}, σ::CalculatedValues, ξ::CalculatedValues)
+function updatellgpd!(ll::CalculatedValuesVector, y::Array{Float64, 1},
+                      μ::Array{Float64, 1}, σ::CalculatedValuesVector, ξ::CalculatedValuesVector)
   this_σ = exp(activevalue(σ))
   this_ξ = activevalue(ξ)
 
   for i = 1:ll.length
-    if y[i] > μ[i]
-      activevalue(ll)[i] = logpdf(GeneralizedPareto(μ[i], this_σ[i], this_ξ[i]), y[i])
-    else
-      activevalue(ll)[i] = 0.0
-    end
+    activevalue(ll)[i] = logpdf(GeneralizedPareto(μ[i], this_σ[i], this_ξ[i]), y[i])
   end
 end

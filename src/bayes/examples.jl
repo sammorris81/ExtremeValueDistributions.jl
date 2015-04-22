@@ -71,15 +71,17 @@ plot(x = 1:10000, y=results.βξpost, Geom.line)
 #   σ ~ InvGamma(0.1, 0.1)
 #   ξ ~ Normal(0, 0.5)
 # generate covariate data and simulated observations
+using ExtremeValueDistributions
 srand(1000)
 n = 1000
 μₐ = 1.0
 σₐ = 2.0
 ξₐ = 0.1
 y = reshape(rand(GeneralizedPareto(μₐ, σₐ, ξₐ), n), n, 1)
+μ = fill(1.0, size(y, 1))
 
 # returns GeneralizedParetoPosterior object
-results = fit_mcmc(GeneralizedPareto, y, μ=1.0, iters=10000, burn=8000,
+results = fit_mcmc(GeneralizedPareto, y, fill(1.0, size(y, 1)); iters=10000, burn=8000,
                    verbose=true, report=500)
 
 using Gadfly
@@ -93,6 +95,8 @@ plot(x = 1:10000, y=results.βξpost, Geom.line)
 # priors:
 #   βσ ~iid Normal(0, 50)
 #    ξ ~ Normal(0, 0.5)
+using ExtremeValueDistributions
+using Distributions
 srand(1000)
 n = 1000
 X = hcat(ones(n), rand(Normal(0, 1), n))
@@ -107,7 +111,7 @@ y = reshape([rand(GeneralizedPareto(0.0, σₐ[i], ξₐ), 1)[1] for i = 1:n], n
 # to change prior standard deviation, you need to include arguments βσsd, or βξsd
 # to update all β terms for a parameter in a block, you need to set
 # βσseq = false, βξseq = false
-results = fit_mcmc(GeneralizedPareto, y,
+results = fit_mcmc(GeneralizedPareto, y, 0.0,
                    Xσ = X, βσsd = 50.0, βξsd = 1.0,
                    βσseq = false, βξseq = false,
                    iters=10000, burn=8000,
@@ -127,5 +131,15 @@ results = fit_mcmc(GeneralizedExtremeValue, df[:SeaLevel],
 
 using Gadfly
 plot(x = 1:20000, y = results.βμpost, Geom.line)
+plot(x = 1:20000, y = exp(results.βσpost), Geom.line)
+plot(x = 1:20000, y = results.βξpost, Geom.line)
+
+# Rainfall analysis
+using ExtremeValueDistributions
+df = extremedata("rainfall")
+results = fit_mcmc(GeneralizedPareto, df[:rainfall], 40.0,
+                   iters = 20000, burn = 18000, verbose = true, report = 1000)
+
+using Gadfly
 plot(x = 1:20000, y = exp(results.βσpost), Geom.line)
 plot(x = 1:20000, y = results.βξpost, Geom.line)

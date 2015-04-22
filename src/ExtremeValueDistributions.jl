@@ -19,6 +19,8 @@ import Distributions: logccdf, logcdf, mean, median, params, logpdf, pdf, quanti
 import Distributions: scale, shape, skewness, support, var, sample
 # get types from Distributions
 import Distributions: ContinuousUnivariateDistribution
+# removing NAs at the moment
+import DataFrames: deleterows!, isna
 
 # for mcmc
 # import Base.LinAlg.BLAS.gemv!
