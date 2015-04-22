@@ -1,10 +1,10 @@
 function mcmc_gev!(obj::GeneralizedExtremeValuePosterior, verbose::Bool, report::Integer)
 
   # storage for calculated values
-  Xβμ = createcalculatedvalues(obj.ns, obj.nt, updater=updateXβ!, requires=(obj.Xμ, obj.βμ))
-  Xβσ = createcalculatedvalues(obj.ns, obj.nt, updater=updateXβ!, requires=(obj.Xσ, obj.βσ))
-  Xβξ = createcalculatedvalues(obj.ns, obj.nt, updater=updateXβ!, requires=(obj.Xξ, obj.βξ))
-  ll  = createcalculatedvalues(obj.ns, obj.nt, updater=updatellgev!,
+  Xβμ = createcalculatedvalues(obj.n, updater=updateXβ!, requires=(obj.Xμ, obj.βμ))
+  Xβσ = createcalculatedvalues(obj.n, updater=updateXβ!, requires=(obj.Xσ, obj.βσ))
+  Xβξ = createcalculatedvalues(obj.n, updater=updateXβ!, requires=(obj.Xξ, obj.βξ))
+  ll  = createcalculatedvalues(obj.n, updater=updatellgev!,
                                requires=(obj.y, Xβμ, Xβσ, Xβξ))
 
   # set impacts

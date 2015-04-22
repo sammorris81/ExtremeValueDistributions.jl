@@ -120,13 +120,11 @@ plot(x = 1:10000, y=results.βσpost[:, 2], Geom.line)
 plot(x = 1:10000, y=results.βξpost, Geom.line)
 
 # Port Pirie data analysis
-using DataFrames
 using ExtremeValueDistributions
-df = readtable(Pkg.dir()"/ExtremeValueDistributions/data/portpirie.csv")
-
-y = reshape(array(df[:SeaLevel], 2), 65, 1)
-results = fit_mcmc(GeneralizedExtremeValue, y,
+df = extremedata("portpirie")
+results = fit_mcmc(GeneralizedExtremeValue, df[:SeaLevel],
                    iters = 20000, burn = 18000, verbose = true, report = 2000)
+
 using Gadfly
 plot(x = 1:20000, y = results.βμpost, Geom.line)
 plot(x = 1:20000, y = exp(results.βσpost), Geom.line)

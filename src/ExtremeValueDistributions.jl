@@ -4,6 +4,7 @@ using Distributions
 using Compat
 using MetropolisUpdaters  # types for Bayes fitting
 using RDatasets           # for readtable
+using DataFrames          # to convert DataArrays to Arrays
 
 # get methods from Base
 import Base.Random

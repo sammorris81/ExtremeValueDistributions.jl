@@ -2,8 +2,7 @@ abstract ExtremePosterior
 
 type GeneralizedExtremeValuePosterior <: ExtremePosterior
   y::Array{Float64}        # response variable
-  ns::Integer              # number of responses per day
-  nt::Integer              # number of days
+  n::Integer               # number of responses
   Xμ::Array{Float64}       # covariates for fitting μ
   Xσ::Array{Float64}       # covariates for fitting σ
   Xξ::Array{Float64}       # covariates for fitting ξ
@@ -23,8 +22,7 @@ end
 
 type GeneralizedParetoPosterior <: ExtremePosterior
   y::Array{Float64}        # response variable
-  ns::Integer              # number of responses per day
-  nt::Integer              # number of days
+  n::Integer               # number of responses per day
   μ::Real                  # GPD location parameter
   Xσ::Array{Float64}       # covariates for fitting σ
   Xξ::Array{Float64}       # covariates for fitting ξ
@@ -80,17 +78,17 @@ function fit_mcmc(::Type{GeneralizedExtremeValue}, y::Array{Float64};
 
   gevfit = GeneralizedExtremeValuePosterior()
 
-  gevfit.ns = size(y, 1)
-  gevfit.nt = size(y, 2)
-  npμ = gevfit.nt == 1 ? size(Xμ, 2) : size(Xμ, 3)
-  npσ = gevfit.nt == 1 ? size(Xσ, 2) : size(Xσ, 3)
-  npξ = gevfit.nt == 1 ? size(Xξ, 2) : size(Xξ, 3)
+  n   = size(y, 1)
+  npμ = size(Xμ, 2)
+  npσ = size(Xσ, 2)
+  npξ = size(Xξ, 2)
 
   # data and covariates for MCMC
+  gevfit.n  = n
   gevfit.y  = y
-  gevfit.Xμ = Xμ
-  gevfit.Xσ = Xσ
-  gevfit.Xξ = Xξ
+  gevfit.Xμ = reshape(Xμ, n, npμ)  # always convert to a matrix
+  gevfit.Xσ = reshape(Xσ, n, npσ)  # always convert to a matrix
+  gevfit.Xξ = reshape(Xξ, n, npξ)  # always convert to a matrix
 
   # parameters for the mcmc
   gevfit.βμ = createmetropolis(npμ, prior=Distributions.Normal(0.0, βμsd),
@@ -116,15 +114,34 @@ function fit_mcmc(::Type{GeneralizedExtremeValue}, y::Array{Float64};
   return gevfit
 end
 
+function fit_mcmc(::Type{GeneralizedExtremeValue}, y::DataArray{Float64};
+                  Xμ::DataArray{Float64} = ones(y), Xσ::DataArray{Float64} = ones(y),
+                  Xξ::DataArray{Float64} = ones(y),
+                  βμsd::Real = 100.0, βσsd::Real = 100.0, βξsd::Real = 1.0,
+                  βμtune::Real = 1.0, βσtune::Real = 1.0, βξtune::Real = 1.0,
+                  βσseq::Bool = true, βξseq::Bool = true,
+                  iters::Integer = 30000, burn::Integer = 10000, thin::Integer = 1,
+                  verbose::Bool = false, report::Integer = 1000)
+
+  # basic functionality for dataframes
+  gevfit = fit_mcmc(GeneralizedExtremeValue, array(y);
+                    Xμ = array(Xμ), Xσ = array(Xσ), Xξ = array(Xξ),
+                    βμsd = βμsd, βσsd = βσsd, βξsd = βξsd,
+                    βμtune = βμtune, βσtune = βσtune, βξtune = βξtune,
+                    βμseq = βμseq, βσseq = βσseq, βξseq = βξseq,
+                    iters = iters, burn = burn, thin = thin, verbose = verbose, report = report)
+
+  return gevfit
+end
 
 function fit_mcmc(::Type{GeneralizedPareto}, y::Array{Float64};
-                  μ::Real=0.0, Xσ::Array{Float64}=ones(y),
-                  Xξ::Array{Float64}=ones(y),
-                  βσsd::Real=100.0, βξsd::Real=1.0,
-                  βσtune::Real=1.0, βξtune::Real=1.0,
-                  βσseq::Bool=true, βξseq::Bool=true,
-                  iters::Integer=30000, burn::Integer=10000, thin::Integer=1,
-                  verbose::Bool=false, report::Integer=1000)
+                  μ::Array{Float64} = zeros(y), Xσ::Array{Float64} = ones(y),
+                  Xξ::Array{Float64} = ones(y),
+                  βσsd::Real = 100.0, βξsd::Real = 1.0,
+                  βσtune::Real = 1.0, βξtune::Real = 1.0,
+                  βσseq::Bool = true, βξseq::Bool = true,
+                  iters::Integer = 30000, burn::Integer = 10000, thin::Integer = 1,
+                  verbose::Bool = false, report::Integer = 1000)
   # arguments:
     # y: data
     # Xσ: covariates for σ
@@ -151,22 +168,22 @@ function fit_mcmc(::Type{GeneralizedPareto}, y::Array{Float64};
 
   gpdfit = GeneralizedParetoPosterior()
 
-  gpdfit.ns = size(y, 1)
-  gpdfit.nt = size(y, 2)
-  npσ = gpdfit.nt == 1 ? size(Xσ, 2) : size(Xσ, 3)
-  npξ = gpdfit.nt == 1 ? size(Xξ, 2) : size(Xξ, 3)
+  n   = size(y, 1)
+  npσ = size(Xσ, 2)
+  npξ = size(Xξ, 2)
 
   # data and covariates for MCMC
+  gpdfit.n  = n
   gpdfit.y  = y
   gpdfit.μ  = μ
-  gpdfit.Xσ = Xσ
-  gpdfit.Xξ = Xξ
+  gpdfit.Xσ = reshape(Xσ, n, npσ)  # always convert to a matrix
+  gpdfit.Xξ = reshape(Xξ, n, npξ)  # always convert to a matrix
 
   # parameters for the mcmc
-  gpdfit.βσ = createmetropolis(npσ, prior=Distributions.Normal(0.0, βσsd),
-                               tune=βσtune, seq=βσseq)
+  gpdfit.βσ = createmetropolis(npσ, prior = Distributions.Normal(0.0, βσsd),
+                               tune = βσtune, seq = βσseq)
   gpdfit.βξ = createmetropolis(npξ, prior=Distributions.Normal(0.0, βξsd),
-                               tune=βξtune, seq=βξseq)
+                               tune = βξtune, seq = βξseq)
 
   # storage for the posterior samples
   gpdfit.βσpost = fill(0.0, iters, gpdfit.βσ.length)
@@ -182,21 +199,60 @@ function fit_mcmc(::Type{GeneralizedPareto}, y::Array{Float64};
   return gpdfit
 end
 
+function fit_mcmc(::Type{GeneralizedPareto}, y::DataArray{Float64};
+                  μ::Real = 0.0, Xσ::DataArray{Float64} = ones(y),
+                  Xξ::DataArray{Float64} = ones(y),
+                  βσsd::Real = 100.0, βξsd::Real = 1.0,
+                  βσtune::Real = 1.0, βξtune::Real = 1.0,
+                  βσseq::Bool = true, βξseq::Bool = true,
+                  iters::Integer = 30000, burn::Integer = 10000, thin::Integer = 1,
+                  verbose::Bool = false, report::Integer = 1000)
+  μ = fill(μ, )
 
-# functions update calculated values
-function updateXβ!(Xβ::CalculatedValues, X::Array{Float64, 2}, β::MetropolisVector)
-  # there are two cases in which X only has 2 dimensions: np = 1 and nt = 1
-  activevalue(Xβ)[:, :] = X[:, :] * activevalue(β)
+  # basic functionality for dataframes
+  gpdfit = fit_mcmc(GeneralizedPareto, array(y); μ = μ,
+                    Xσ = array(Xσ), Xξ = array(Xξ),
+                    βσsd = βσsd, βξsd = βξsd,
+                    βσtune = βσtune, βξtune = βξtune,
+                    βσseq = βσseq, βξseq = βξseq,
+                    iters = iters, burn = burn, thin = thin, verbose = verbose, report = report)
+
+  return gpdfit
 end
 
-function updatellgev!(ll::CalculatedValuesMatrix, y::Array{Float64},
+function fit_mcmc(::Type{GeneralizedPareto}, y::DataArray{Float64};
+                  μ::Array{Float64} = zeros(y), Xσ::DataArray{Float64} = ones(y),
+                  Xξ::DataArray{Float64} = ones(y),
+                  βσsd::Real = 100.0, βξsd::Real = 1.0,
+                  βσtune::Real = 1.0, βξtune::Real = 1.0,
+                  βσseq::Bool = true, βξseq::Bool = true,
+                  iters::Integer = 30000, burn::Integer = 10000, thin::Integer = 1,
+                  verbose::Bool = false, report::Integer = 1000)
+
+  # basic functionality for dataframes
+  gpdfit = fit_mcmc(GeneralizedPareto, array(y); μ = μ,
+                    Xσ = array(Xσ), Xξ = array(Xξ),
+                    βσsd = βσsd, βξsd = βξsd,
+                    βσtune = βσtune, βξtune = βξtune,
+                    βσseq = βσseq, βξseq = βξseq,
+                    iters = iters, burn = burn, thin = thin, verbose = verbose, report = report)
+
+  return gpdfit
+end
+
+#### functions to update calculated values for mcmc
+function updateXβ!(Xβ::CalculatedValues, X::Array{Float64, 2}, β::MetropolisVector)
+  activevalue(Xβ)[:, :] = X * activevalue(β)
+end
+
+function updatellgev!(ll::CalculatedValuesVector, y::Array{Float64},
                       μ::CalculatedValues, σ::CalculatedValues, ξ::CalculatedValues)
   this_μ = activevalue(μ)
   this_σ = exp(activevalue(σ))
   this_ξ = activevalue(ξ)
 
-  for j = 1:ll.ncols, i = 1:ll.nrows
-    activevalue(ll)[i, j] = logpdf(GeneralizedExtremeValue(this_μ[i, j], this_σ[i, j], this_ξ[i, j]), y[i, j])
+  for i = 1:ll.length
+    activevalue(ll)[i] = logpdf(GeneralizedExtremeValue(this_μ[i], this_σ[i], this_ξ[i]), y[i])
   end
 end
 
@@ -205,18 +261,7 @@ function updatellgpd!(ll::CalculatedValuesMatrix, y::Array{Float64},
   this_σ = exp(activevalue(σ))
   this_ξ = activevalue(ξ)
 
-  for j = 1:ll.ncols, i = 1:ll.nrows
-    activevalue(ll)[i, j] = logpdf(GeneralizedPareto(μ, this_σ[i, j], this_ξ[i, j]), y[i, j])
-  end
-end
-
-function updatelly!(ll::CalculatedValuesMatrix, y::Array{Float64},
-                    μ::CalculatedValues, σ::CalculatedValues, ξ::CalculatedValues)
-  this_μ = activevalue(μ)
-  this_σ = exp(activevalue(σ))
-  this_ξ = activevalue(ξ)
-
-  for j = 1:ll.ncols, i = 1:ll.nrows
-    activevalue(ll)[i, j] = logpdf(GeneralizedExtremeValue(this_μ[i, j], this_σ[i, j], this_ξ[i, j]), y[i, j])
+  for i = 1:ll.length
+    activevalue(ll)[i] = logpdf(GeneralizedPareto(μ, this_σ[i], this_ξ[i]), y[i])
   end
 end

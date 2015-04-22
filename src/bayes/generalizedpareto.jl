@@ -1,9 +1,9 @@
 function mcmc_gpd!(obj::GeneralizedParetoPosterior, verbose::Bool, report::Integer)
 
   # storage for calculated values
-  Xβσ = createcalculatedvalues(obj.ns, obj.nt, updater=updateXβ!, requires=(obj.Xσ, obj.βσ))
-  Xβξ = createcalculatedvalues(obj.ns, obj.nt, updater=updateXβ!, requires=(obj.Xξ, obj.βξ))
-  ll  = createcalculatedvalues(obj.ns, obj.nt, updater=updatellgpd!,
+  Xβσ = createcalculatedvalues(obj.n, updater=updateXβ!, requires=(obj.Xσ, obj.βσ))
+  Xβξ = createcalculatedvalues(obj.n, updater=updateXβ!, requires=(obj.Xξ, obj.βξ))
+  ll  = createcalculatedvalues(obj.n, updater=updatellgpd!,
                                requires=(obj.y, obj.μ, Xβσ, Xβξ))
 
   # set impacts
