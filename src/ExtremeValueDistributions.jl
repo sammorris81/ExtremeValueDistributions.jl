@@ -3,6 +3,7 @@ module ExtremeValueDistributions
 using Distributions
 using Compat
 using MetropolisUpdaters  # types for Bayes fitting
+using RDatasets           # for readtable
 
 # get methods from Base
 import Base.Random
@@ -15,7 +16,6 @@ import Distributions: ccdf, cdf, cquantile, isbounded, islowerbounded
 import Distributions: isupperbounded, hasfinitesupport, insupport, invlogccdf, invlogcdf, location
 import Distributions: logccdf, logcdf, mean, median, params, logpdf, pdf, quantile
 import Distributions: scale, shape, skewness, support, var, sample
-# import Distributions: @distr_support
 # get types from Distributions
 import Distributions: ContinuousUnivariateDistribution
 
@@ -63,7 +63,10 @@ export
   sample,
 
   # fitting
-  fit_mcmc
+  fit_mcmc,
+
+  # load data
+  extremedata
 
 
 ### source files
@@ -72,5 +75,6 @@ include("density/generalizedextreme.jl")
 include("bayes/mcmc.jl")
 include("bayes/generalizedextreme.jl")
 include("bayes/generalizedpareto.jl")
+include("loaddata.jl")
 
 end # module
