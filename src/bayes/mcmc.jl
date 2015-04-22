@@ -119,7 +119,7 @@ function fit_mcmc(::Type{GeneralizedExtremeValue}, y::DataArray{Float64};
                   Xξ::DataArray{Float64} = ones(y),
                   βμsd::Real = 100.0, βσsd::Real = 100.0, βξsd::Real = 1.0,
                   βμtune::Real = 1.0, βσtune::Real = 1.0, βξtune::Real = 1.0,
-                  βσseq::Bool = true, βξseq::Bool = true,
+                  βμseq::Bool = true, βσseq::Bool = true, βξseq::Bool = true,
                   iters::Integer = 30000, burn::Integer = 10000, thin::Integer = 1,
                   verbose::Bool = false, report::Integer = 1000)
 
@@ -173,6 +173,7 @@ function fit_mcmc(::Type{GeneralizedPareto}, y::Array{Float64};
   npξ = size(Xξ, 2)
 
   # data and covariates for MCMC
+  @assert n == size(μ, 1)  # make sure that a user-defined μ array is the correct length
   gpdfit.n  = n
   gpdfit.y  = y
   gpdfit.μ  = μ
@@ -199,6 +200,27 @@ function fit_mcmc(::Type{GeneralizedPareto}, y::Array{Float64};
   return gpdfit
 end
 
+function fit_mcmc(::Type{GeneralizedPareto}, y::Array{Float64};
+                  μ::Real = 0.0, Xσ::Array{Float64} = ones(y),
+                  Xξ::Array{Float64} = ones(y),
+                  βσsd::Real = 100.0, βξsd::Real = 1.0,
+                  βσtune::Real = 1.0, βξtune::Real = 1.0,
+                  βσseq::Bool = true, βξseq::Bool = true,
+                  iters::Integer = 30000, burn::Integer = 10000, thin::Integer = 1,
+                  verbose::Bool = false, report::Integer = 1000)
+
+  # basic functionality for dataframes with single threshold
+  μ = fill(μ, size(y, 1))
+  gpdfit = fit_mcmc(GeneralizedPareto, y; μ = μ,
+                    Xσ = Xσ, Xξ = Xξ,
+                    βσsd = βσsd, βξsd = βξsd,
+                    βσtune = βσtune, βξtune = βξtune,
+                    βσseq = βσseq, βξseq = βξseq,
+                    iters = iters, burn = burn, thin = thin, verbose = verbose, report = report)
+
+  return gpdfit
+end
+
 function fit_mcmc(::Type{GeneralizedPareto}, y::DataArray{Float64};
                   μ::Real = 0.0, Xσ::DataArray{Float64} = ones(y),
                   Xξ::DataArray{Float64} = ones(y),
@@ -207,9 +229,9 @@ function fit_mcmc(::Type{GeneralizedPareto}, y::DataArray{Float64};
                   βσseq::Bool = true, βξseq::Bool = true,
                   iters::Integer = 30000, burn::Integer = 10000, thin::Integer = 1,
                   verbose::Bool = false, report::Integer = 1000)
-  μ = fill(μ, )
 
-  # basic functionality for dataframes
+  # basic functionality for dataframes with single threshold
+  μ = fill(μ, size(y, 1))
   gpdfit = fit_mcmc(GeneralizedPareto, array(y); μ = μ,
                     Xσ = array(Xσ), Xξ = array(Xξ),
                     βσsd = βσsd, βξsd = βξsd,
@@ -257,11 +279,15 @@ function updatellgev!(ll::CalculatedValuesVector, y::Array{Float64},
 end
 
 function updatellgpd!(ll::CalculatedValuesMatrix, y::Array{Float64},
-                      μ::Real, σ::CalculatedValues, ξ::CalculatedValues)
+                      μ::Array{Float64}, σ::CalculatedValues, ξ::CalculatedValues)
   this_σ = exp(activevalue(σ))
   this_ξ = activevalue(ξ)
 
   for i = 1:ll.length
-    activevalue(ll)[i] = logpdf(GeneralizedPareto(μ, this_σ[i], this_ξ[i]), y[i])
+    if y[i] > μ[i]
+      activevalue(ll)[i] = logpdf(GeneralizedPareto(μ[i], this_σ[i], this_ξ[i]), y[i])
+    else
+      activevalue(ll)[i] = 0.0
+    end
   end
 end
