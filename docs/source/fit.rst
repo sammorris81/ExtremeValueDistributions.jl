@@ -143,10 +143,9 @@ where
   \xi &= 0.1 \\
   X &~\sim N(0, 1) \\
 
-1. Generate the data
-
 .. code-block:: julia
 
+  # generate the data
   using ExtremeValueDistributions
   using Distributions
   srand(100)
@@ -157,20 +156,14 @@ where
   ξ  = 0.1
   y = reshape([rand(GeneralizedExtremeValue(0.0, σ[i], ξ), 1)[1] for i = 1:n], n, 1)
 
-2. Fit the model
-
-.. code-block:: julia
-
+  # fit the model
   results = fit_mcmc(GeneralizedPareto, y, 0.0,
                      Xσ = X, βσsd = 50.0, βξsd = 1.0,
                      βσseq = false, βξseq = false,
                      iters=10000, burn=8000,
                      verbose=true, report=500)
 
-3. Plot the posterior distribution
-
-.. code-block:: julia
-
+  # plot the posterior distribution
   using Gadfly
   plot(x = 1:10000, y=results.βσpost[:, 1], Geom.line)
   plot(x = 1:10000, y=results.βσpost[:, 2], Geom.line)
@@ -189,7 +182,9 @@ We illustrate the fitting for the ``portpirie`` dataset below. The data are fit 
 
 .. code-block:: julia
 
+  # import the data
   using ExtremeValueDistributions
+  df = extremedata("portpirie")
   results = fit_mcmc(GeneralizedExtremeValue, df[:SeaLevel],
                      iters = 20000, burn = 18000, verbose = true, report = 2000)
 
