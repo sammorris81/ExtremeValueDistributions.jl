@@ -236,51 +236,51 @@ We generate the following generalized Pareto distribution to demonstrate the cap
 
 .. math::
 
-  Z \sim \text{GPD}(0, \sigma, \xi)
+    Z \sim \text{GPD}(0, \sigma, \xi)
 
 where
 
 .. math::
 
-  \log(\sigma) &= 2 + 1.3x\\
-  \xi &= 0.1 \\
-  X &~\sim N(0, 1) \\
+    \log(\sigma) &= 2 + 1.3x\\
+    \xi &= 0.1 \\
+    X &~\sim N(0, 1) \\
 
 1. Generate the dataset
 
 .. code-block:: julia
 
-  # generate the data
-  using ExtremeValueDistributions
-  using Distributions
-  srand(100)
-  n = 1000
-  X = hcat(ones(n), rand(Normal(0, 1), n))
-  βσ = [2.0, 1.3]
-  σ  = exp(X * βσ)
-  ξ  = 0.1
-  y = reshape([rand(GeneralizedExtremeValue(0.0, σ[i], ξ), 1)[1] for i = 1:n], n, 1)
+    # generate the data
+    using ExtremeValueDistributions
+    using Distributions
+    srand(100)
+    n = 1000
+    X = hcat(ones(n), rand(Normal(0, 1), n))
+    βσ = [2.0, 1.3]
+    σ  = exp(X * βσ)
+    ξ  = 0.1
+    y = reshape([rand(GeneralizedExtremeValue(0.0, σ[i], ξ), 1)[1] for i = 1:n], n, 1)
 
 2. Fit the data using MCMC
 
 .. code-block:: julia
 
-  # fit the model
-  results = fit_mcmc(GeneralizedPareto, y, 0.0,
-                     Xσ = X, βσsd = 50.0, βξsd = 1.0,
-                     βσseq = false, βξseq = false,
-                     iters=10000, burn=8000,
-                     verbose=true, report=500)
+    # fit the model
+    results = fit_mcmc(GeneralizedPareto, y, 0.0,
+                       Xσ = X, βσsd = 50.0, βξsd = 1.0,
+                       βσseq = false, βξseq = false,
+                       iters=10000, burn=8000,
+                       verbose=true, report=500)
 
 3. Look at the posterior samples to make sure the MCMC has converged.
 
 .. code-block:: julia
 
-  # plot the posterior distribution
-  using Gadfly
-  plot(x = 1:10000, y=results.βσpost[:, 1], Geom.line)
-  plot(x = 1:10000, y=results.βσpost[:, 2], Geom.line)
-  plot(x = 1:10000, y=results.βξpost, Geom.line)
+    # plot the posterior distribution
+    using Gadfly
+    plot(x = 1:10000, y=results.βσpost[:, 1], Geom.line)
+    plot(x = 1:10000, y=results.βσpost[:, 2], Geom.line)
+    plot(x = 1:10000, y=results.βξpost, Geom.line)
 
 Data analysis
 -------------
