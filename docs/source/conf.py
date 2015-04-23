@@ -83,7 +83,7 @@ exclude_patterns = ['_build']
 
 # If true, the current module name will be prepended to all description
 # unit titles (such as .. function::).
-add_module_names = False 
+add_module_names = False
 
 # If true, sectionauthor and moduleauthor directives will be shown in the
 # output. They are ignored by default.
@@ -151,7 +151,7 @@ html_static_path = []
 #html_use_smartypants = True
 
 # Custom sidebar templates, maps document names to template names.
-html_sidebars = juliadoc.default_sidebars() 
+html_sidebars = juliadoc.default_sidebars()
 
 # Additional templates that should be rendered to pages, maps page names to
 # template names.
