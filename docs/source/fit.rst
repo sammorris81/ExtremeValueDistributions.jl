@@ -36,6 +36,10 @@ Let ``y`` be an ``n`` x 1 vector of responses. The method ``fit_mcmc()`` is used
 
 The results from fitting the model using MCMC are of type ``GeneralizedExtremeValuePosterior`` or ``GeneralizedParetoPosterior`` depending on the type of distribution fit.
 
+*Missing data*
+
+When ``y`` is a ``DataFrame``, then the user can include ``NA`` values for ``fit_mcmc()``. In the current version of the package, ``NA`` values are assumed to be missing at random and are removed from the dataset.
+
 **Results**
 
 Let ``results`` be a type of ``GeneralizedExtremeValuePosterior`` or ``GeneralizedParetoPosterior``. The full list of available fields is
@@ -68,7 +72,7 @@ The following three results fields are ``MetropolisParameter`` types: a)``result
 * Prior distribution: ``results.βμ.prior``
 * Sequential update: ``results.βμ.seq``
 
-**Simulated Example: GEV**
+**Simulated Example: Generalized Extreme Value**
 
 We generate the following generalized extreme value distribution to demonstrate the capabilities of ``fit_mcmc()``. Let
 
@@ -80,16 +84,17 @@ where
 
 .. math::
 
-  \mu &= 1 + 2 X_1 \\
-  \log(\sigma) &= 2 + 1.3 * X_2\\
+  \mu &= 1 + 2 X\\
+  \log(\sigma) &= 2 + 1.3 * X\\
   \xi &= 0.1 \\
-  X_1 &~\sim N(0, 1) \\
-  X_2 &~\sim N(0, 1)
+  X &~\sim N(0, 1) \\
 
 1. Generate the data
 
 .. code-block:: julia
 
+  using ExtremeValueDistributions
+  using Distributions
   srand(100)
   n = 1000
   X = hcat(ones(n), rand(Normal(0, 1), n))
@@ -97,7 +102,6 @@ where
   μ  = X * βμ
   βσ = [2.0, 1.3]
   σ  = exp(X * βσ)
-  βξ = 0.1
   ξ  = 0.1
   y = reshape([rand(GeneralizedExtremeValue(μ[i], σ[i], ξ), 1)[1] for i = 1:n], n, 1)
 
@@ -123,7 +127,89 @@ where
   plot(x = 1:10000, y=results.βξpost, Geom.line)
 
 
-**Simulated Example: GPD**
+**Simulated Example: Generalized Pareto Distribution**
+
+We generate the following generalized Pareto distribution to demonstrate the capabilities of ``fit_mcmc()``. Let
+
+.. math::
+
+  Z \sim \text{GPD}(0, \sigma, \xi)
+
+where
+
+.. math::
+
+  \log(\sigma) &= 2 + 1.3 * X\\
+  \xi &= 0.1 \\
+  X &~\sim N(0, 1) \\
+
+1. Generate the data
+
+.. code-block:: julia
+
+  using ExtremeValueDistributions
+  using Distributions
+  srand(100)
+  n = 1000
+  X = hcat(ones(n), rand(Normal(0, 1), n))
+  βσ = [2.0, 1.3]
+  σ  = exp(X * βσ)
+  ξ  = 0.1
+  y = reshape([rand(GeneralizedExtremeValue(0.0, σ[i], ξ), 1)[1] for i = 1:n], n, 1)
+
+2. Fit the model
+
+.. code-block:: julia
+
+  results = fit_mcmc(GeneralizedPareto, y, 0.0,
+                     Xσ = X, βσsd = 50.0, βξsd = 1.0,
+                     βσseq = false, βξseq = false,
+                     iters=10000, burn=8000,
+                     verbose=true, report=500)
+
+3. Plot the posterior distribution
+
+.. code-block:: julia
+
+  using Gadfly
+  plot(x = 1:10000, y=results.βσpost[:, 1], Geom.line)
+  plot(x = 1:10000, y=results.βσpost[:, 2], Geom.line)
+  plot(x = 1:10000, y=results.βξpost, Geom.line)
 
 Data analysis
 -------------
+
+**Port Pirie sea level data**
+
+The dataset ``portpirie`` consists of annual maximum sea levels (in meters) from Port Pirie, South Australia, from 1928 to 1987. This dataset comes from the ``evdbayes`` package in ``R``. Data can be loaded into ``Julia`` using ``extremedata("portpirie")``.
+
+*MCMC data analysis*
+We illustrate the fitting for the ``portpirie`` dataset below. The data are fit using 20000 iterations with 18000 burnin.
+
+.. code-block:: julia
+
+  using ExtremeValueDistributions
+  results = fit_mcmc(GeneralizedExtremeValue, df[:SeaLevel],
+                     iters = 20000, burn = 18000, verbose = true, report = 2000)
+
+  # plot the posterior distributions
+  using Gadfly
+  plot(x = 1:20000, y = results.βμpost, Geom.line)
+  plot(x = 1:20000, y = exp(results.βσpost), Geom.line)
+  plot(x = 1:20000, y = results.βξpost, Geom.line)
+
+**Rainfall analysis**
+
+The dataset ``rainfall`` contains 20820 daily rainfall observations (in mm) recorded at a rain gauge in England over 57 years. Three of the years contain only ``NA`` values, and of the remaining observations 54, are ``NA`` values. This dataset comes from the ``evdbayes`` package in ``R``.
+
+.. code-block:: julia
+
+  using ExtremeValueDistributions
+  df = extremedata("rainfall")
+  results = fit_mcmc(GeneralizedPareto, df[:rainfall], 40.0,
+                     iters = 20000, burn = 18000, verbose = true, report = 1000)
+
+  # plot the posterior distributions
+  using Gadfly
+  plot(x = 1:20000, y = exp(results.βσpost), Geom.line)
+  plot(x = 1:20000, y = results.βξpost, Geom.line)
