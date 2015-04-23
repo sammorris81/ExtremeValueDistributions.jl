@@ -10,8 +10,7 @@ The *ExtremeValueDistributions* package extends the *Distributions* to include t
 
    starting.rst
    distributions.rst
-   mlefit.rst
-   mcmcfit.rst
+   fit.rst
 
 .. Indices and tables
 .. ==================
