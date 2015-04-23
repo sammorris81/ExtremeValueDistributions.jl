@@ -184,6 +184,7 @@ Data analysis
 The dataset ``portpirie`` consists of annual maximum sea levels (in meters) from Port Pirie, South Australia, from 1928 to 1987. This dataset comes from the ``evdbayes`` package in ``R``. Data can be loaded into ``Julia`` using ``extremedata("portpirie")``.
 
 *MCMC data analysis*
+
 We illustrate the fitting for the ``portpirie`` dataset below. The data are fit using 20000 iterations with 18000 burnin.
 
 .. code-block:: julia
@@ -201,6 +202,10 @@ We illustrate the fitting for the ``portpirie`` dataset below. The data are fit 
 **Rainfall analysis**
 
 The dataset ``rainfall`` contains 20820 daily rainfall observations (in mm) recorded at a rain gauge in England over 57 years. Three of the years contain only ``NA`` values, and of the remaining observations 54, are ``NA`` values. This dataset comes from the ``evdbayes`` package in ``R``.
+
+*MCMC data analysis*
+
+We illustrate the fitting for the ``rainfall`` dataset below. The data are fit using 20000 iterations with 18000 burnin.
 
 .. code-block:: julia
 
