@@ -194,8 +194,6 @@ where
     \xi &= 0.1 \\
     X &~\sim N(0, 1) \\
 
-Generate the data
-
 .. code-block:: julia
 
     # generate the data
@@ -211,18 +209,12 @@ Generate the data
     ξ  = 0.1
     y = reshape([rand(GeneralizedExtremeValue(μ[i], σ[i], ξ), 1)[1] for i = 1:n], n, 1)
 
-Fit the model
-
-.. code-block:: julia
-
     # fit the model
     results = fit_mcmc(GeneralizedExtremeValue, y,
                        Xμ = X, Xσ = X, βμsd = 100.0, βσsd = 50.0, βξsd = 1.0,
                        βμseq = false, βσseq = false, βξseq = false,
                        iters=10000, burn=8000,
                        verbose=true, report=500)
-
-.. code-block:: julia
 
     # plot the posterior distribution
     using Gadfly
@@ -250,8 +242,6 @@ where
     \xi &= 0.1 \\
     X &~\sim N(0, 1) \\
 
-1. Generate the dataset
-
 .. code-block:: julia
 
     # generate the data
@@ -265,20 +255,12 @@ where
     ξ  = 0.1
     y = reshape([rand(GeneralizedExtremeValue(0.0, σ[i], ξ), 1)[1] for i = 1:n], n, 1)
 
-2. Fit the data using MCMC
-
-.. code-block:: julia
-
     # fit the model
     results = fit_mcmc(GeneralizedPareto, y, 0.0,
                        Xσ = X, βσsd = 50.0, βξsd = 1.0,
                        βσseq = false, βξseq = false,
                        iters=10000, burn=8000,
                        verbose=true, report=500)
-
-3. Look at the posterior samples to make sure the MCMC has converged.
-
-.. code-block:: julia
 
     # plot the posterior distribution
     using Gadfly
@@ -320,8 +302,6 @@ We illustrate how to fit the ``portpirie`` dataset using a generalized extreme v
   results = fit_mcmc(GeneralizedExtremeValue, df[:SeaLevel],
                      iters = 20000, burn = 18000, verbose = true, report = 2000)
 
-.. code-block:: julia
-
   # plot the posterior distributions
   using Gadfly
   plot(x = 1:20000, y = results.βμpost, Geom.line)
@@ -358,10 +338,6 @@ We illustrate how to fit the ``rainfall`` dataset using a generalized Pareto dis
     df = extremedata("rainfall")
     results = fit_mcmc(GeneralizedPareto, df[:rainfall], 40.0, iters = 20000, burn = 18000,
                        verbose = true, report = 1000)
-
-
-
-.. code-block:: julia
 
     # plot the posterior distributions
     using Gadfly
