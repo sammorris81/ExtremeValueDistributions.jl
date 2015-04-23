@@ -60,7 +60,7 @@ where
   y = reshape([rand(GeneralizedExtremeValue(μ[i], σ[i], ξ), 1)[1] for i = 1:n], n, 1)
 
   # fit the model
-  results = fit_mle_optim(GeneralizedExtremeValue, y, [0.0, 0.0, 0.0], Xσ = X)
+  results = fit_mle_optim(GeneralizedExtremeValue, vec(y), [0.5, 0.5, 0.5], Xσ = X)
   println(results)  # [βμ, βσ, βξ]
 
 
@@ -94,7 +94,7 @@ where
   y = reshape([rand(GeneralizedExtremeValue(0.0, σ[i], ξ), 1)[1] for i = 1:n], n, 1)
 
   # fit the model
-  results = fit_mcmc(GeneralizedPareto, y, [0.0, 1.0, 1.0], Xσ = X)
+  results = fit_mle_optim(GeneralizedPareto, vec(y), [0.0, 0.5, 0.5], Xσ = X)
   println(results)  # [μ, βσ, βξ]
 
 
@@ -271,6 +271,9 @@ The dataset ``portpirie`` consists of annual maximum sea levels (in meters) from
   using ExtremeValueDistributions
   df = extremedata("portpirie")
   results = fit_mle_optim(GeneralizedExtremeValue, df[:SeaLevel], [0.5, 0.5, 0.5])
+  println("μ = $(results[1])")
+  println("σ = $(exp(results[2]))")
+  println("ξ = $(results[3])")
 
 *MCMC data analysis*
 
@@ -302,6 +305,9 @@ The dataset ``rainfall`` contains 20820 daily rainfall observations (in mm) reco
   using ExtremeValueDistributions
   df = extremedata("rainfall")
   results = fit_mle_optim(GeneralizedPareto, df[:rainfall], [40.0, 0.0, 0.0])
+  println("μ = $(results[1])")  # threshold fixed by user
+  println("σ = $(exp(results[2]))")
+  println("ξ = $(results[3])")
 
 *MCMC data analysis*
 
