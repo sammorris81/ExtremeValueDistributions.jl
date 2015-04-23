@@ -91,13 +91,13 @@ where
   srand(100)
   n = 1000
   X = hcat(ones(n), rand(Normal(0, 1), n))
-  βμₐ = [1.0, 2.0]
-  μₐ  = X * βμₐ
-  βσₐ = [2.0, 1.3]
-  σₐ  = exp(X * βσₐ)
-  βξₐ = 0.1
-  ξₐ  = 0.1
-  y = reshape([rand(GeneralizedExtremeValue(μₐ[i], σₐ[i], ξₐ), 1)[1] for i = 1:n], n, 1)
+  βμ = [1.0, 2.0]
+  μ  = X * βμ
+  βσ = [2.0, 1.3]
+  σ  = exp(X * βσ)
+  βξ = 0.1
+  ξ  = 0.1
+  y = reshape([rand(GeneralizedExtremeValue(μ[i], σ[i], ξ), 1)[1] for i = 1:n], n, 1)
 
 *Fit the model*
 
