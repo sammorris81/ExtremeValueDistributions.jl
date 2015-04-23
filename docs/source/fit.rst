@@ -37,19 +37,12 @@ We generate the following generalized extreme value distribution to demonstrate 
 
 .. math::
 
-    Z \sim \text{GEV}(\mu, \sigma, \xi)
-
-where
-
-.. math::
-
-  \mu &= 1\\
-  \sigma &= 2 \\
-  \xi &= 0.1 \\
+    Z \sim \text{GEV}(\mu = 1, \sigma = 2, \xi = 0.1)
 
 .. code-block:: julia
 
   # generate data
+  using ExtremeValueDistributions
   srand(1000)  # set seed
   n = 1000
   μ = 1.0
@@ -80,6 +73,7 @@ where
   X &~\sim N(0, 1) \\
 
 .. code-block:: julia
+
   # generate the data
   using ExtremeValueDistributions
   using Distributions
