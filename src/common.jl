@@ -9,3 +9,11 @@ function extremedata(dataset_name::String)
   end
 
 end
+
+function coercematrix(X::Array{Float64}, n::Integer)
+  @assert size(X, 1) == n
+  if ndims(X) == 1
+    X = reshape(X, n, 1)
+  end
+  return X
+end

@@ -81,6 +81,6 @@ include("mle/mle.jl")
 include("bayes/mcmc.jl")
 include("bayes/generalizedextreme.jl")
 include("bayes/generalizedpareto.jl")
-include("loaddata.jl")
+include("common.jl")
 
 end # module
