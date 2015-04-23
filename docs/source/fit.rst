@@ -194,7 +194,7 @@ Posterior samples are available as matrices in ``results.βμpost``, ``results.�
 MetropolisParameters
 """"""""""""""""""""
 
-The following three results fields are ``MetropolisParameter`` types: a) ``results.βμ``, b) ``results.βσ``, and c) ``results.βξ``. This type is still under development, but we have included some basic documentation here. The following fields give information about the prior distributions used along with information about final candidate standard deviation and acceptance rates. Here are some of the more useful fields in the ``MetropolisParameter`` type.
+The following three results fields are ``MetropolisParameter`` types: 1) ``results.βμ``, 2) ``results.βσ``, and 3) ``results.βξ``. This type is still under development, but we have included some basic documentation here. The following fields give information about the prior distributions used along with information about final candidate standard deviation and acceptance rates. Here are some of the more useful fields in the ``MetropolisParameter`` type.
 
 * Post-burnin acceptance rates: ``results.βμ.acc ./ results.βμ.att``
 * Prior distribution: ``results.βμ.prior``
