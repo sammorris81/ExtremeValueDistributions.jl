@@ -25,7 +25,7 @@ When ``y`` is a ``DataFrame``, then the user can include ``NA`` values for ``fit
 
 **Results**
 
-After iterating to convergence (or divergence) from ``attempts`` different initial values, ``fit_mle_optim`` returns the best maximizers of the log-likelihood, ``[βμ, βσ, βξ]``, where ``μ = Xμ * βμ``, ``logσ = Xσ * βσ``, and ``ξ = Xξ * βξ``. 
+After iterating to convergence (or divergence) from ``attempts`` different initial values, ``fit_mle_optim`` returns the best maximizers of the log-likelihood, ``[βμ, βσ, βξ]``, where ``μ = Xμ * βμ``, ``logσ = Xσ * βσ``, and ``ξ = Xξ * βξ``.
 
 **Simulated Example: Generalized Extreme Value**
 
@@ -297,7 +297,7 @@ The dataset ``rainfall`` contains 20820 daily rainfall observations (in mm) reco
 *MLE data analysis*
 
 .. code-block:: julia
-  
+
   # import the data
   using ExtremeValueDistributions
   df = extremedata("rainfall")
@@ -309,12 +309,13 @@ We illustrate the fitting for the ``rainfall`` dataset below. The data are fit u
 
 .. code-block:: julia
 
+  # import the data
   using ExtremeValueDistributions
   df = extremedata("rainfall")
-  results = fit_mcmc(GeneralizedPareto, df[:rainfall], 40.0,
-                     iters = 20000, burn = 18000, verbose = true, report = 1000)
+  results = fit_mcmc(GeneralizedPareto, df[:rainfall], 40.0, iters = 20000, burn = 18000, verbose = true, report = 1000)
 
   # plot the posterior distributions
   using Gadfly
   plot(x = 1:20000, y = exp(results.βσpost), Geom.line)
   plot(x = 1:20000, y = results.βξpost, Geom.line)
+
