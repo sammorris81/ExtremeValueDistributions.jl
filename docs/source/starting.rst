@@ -17,5 +17,6 @@ This package requires two unregistered packages that are used for fitting the di
 *Installation:*
 
 .. code-block:: julia
+
     julia> Pkg.clone("https://github.com/sammorris81/ExtremeValueDistributions.jl.git")
 
