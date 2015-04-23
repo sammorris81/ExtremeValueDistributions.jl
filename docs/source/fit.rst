@@ -37,35 +37,35 @@ We generate the following generalized extreme value distribution to demonstrate 
 
 .. math::
 
-  Z \sim \text{GEV}(\mu, \sigma, \xi)
+    Z \sim \text{GEV}(\mu, \sigma, \xi)
 
 where
 
 .. math::
 
-  \mu &= 1\\
-  \log(\sigma) &= 2 + 1.3x\\
-  \xi &= 0.1 \\
-  X &~\sim N(0, 1) \\
+    \mu &= 1\\
+    \log(\sigma) &= 2 + 1.3x\\
+    \xi &= 0.1 \\
+    X &~\sim N(0, 1) \\
 
 .. code-block:: julia
 
-  # generate the data
-  using ExtremeValueDistributions
-  using Distributions
-  srand(100)
-  n = 1000
-  X = hcat(ones(n), rand(Normal(0, 1), n))
-  βμ = [1.0, 0.0]
-  μ  = X * βμ
-  βσ = [2.0, 1.3]
-  σ  = exp(X * βσ)
-  ξ  = 0.1
-  y = reshape([rand(GeneralizedExtremeValue(μ[i], σ[i], ξ), 1)[1] for i = 1:n], n, 1)
+    # generate the data
+    using ExtremeValueDistributions
+    using Distributions
+    srand(100)
+    n = 1000
+    X = hcat(ones(n), rand(Normal(0, 1), n))
+    βμ = [1.0, 0.0]
+    μ  = X * βμ
+    βσ = [2.0, 1.3]
+    σ  = exp(X * βσ)
+    ξ  = 0.1
+    y = reshape([rand(GeneralizedExtremeValue(μ[i], σ[i], ξ), 1)[1] for i = 1:n], n, 1)
 
-  # fit the model
-  results = fit_mle_optim(GeneralizedExtremeValue, vec(y), [0.5, 0.5, 0.5], Xσ = X)
-  println(results)  # [βμ, βσ, βξ]
+    # fit the model
+    results = fit_mle_optim(GeneralizedExtremeValue, vec(y), [0.5, 0.5, 0.5], Xσ = X)
+    println(results)  # [βμ, βσ, βξ]
 
 
 Simulated Example: Generalized Pareto Distribution
@@ -75,32 +75,32 @@ We generate the following generalized Pareto distribution to demonstrate the cap
 
 .. math::
 
-  Z \sim \text{GPD}(0, \sigma, \xi)
+    Z \sim \text{GPD}(0, \sigma, \xi)
 
 where
 
 .. math::
 
-  \log(\sigma) &= 2 + 1.3x\\
-  \xi &= 0.1 \\
-  X &~\sim N(0, 1) \\
+    \log(\sigma) &= 2 + 1.3x\\
+    \xi &= 0.1 \\
+    X &~\sim N(0, 1) \\
 
 .. code-block:: julia
 
-  # generate the data
-  using ExtremeValueDistributions
-  using Distributions
-  srand(100)
-  n = 1000
-  X = hcat(ones(n), rand(Normal(0, 1), n))
-  βσ = [2.0, 1.3]
-  σ  = exp(X * βσ)
-  ξ  = 0.1
-  y = reshape([rand(GeneralizedExtremeValue(0.0, σ[i], ξ), 1)[1] for i = 1:n], n, 1)
+    # generate the data
+    using ExtremeValueDistributions
+    using Distributions
+    srand(100)
+    n = 1000
+    X = hcat(ones(n), rand(Normal(0, 1), n))
+    βσ = [2.0, 1.3]
+    σ  = exp(X * βσ)
+    ξ  = 0.1
+    y = reshape([rand(GeneralizedExtremeValue(0.0, σ[i], ξ), 1)[1] for i = 1:n], n, 1)
 
-  # fit the model
-  results = fit_mle_optim(GeneralizedPareto, vec(y), [0.0, 0.5, 0.5], Xσ = X)
-  println(results)  # [μ, βσ, βξ]
+    # fit the model
+    results = fit_mle_optim(GeneralizedPareto, vec(y), [0.0, 0.5, 0.5], Xσ = X)
+    println(results)  # [μ, βσ, βξ]
 
 
 MCMC fitting for Extreme Value Distributions
@@ -183,50 +183,50 @@ We generate the following generalized extreme value distribution to demonstrate 
 
 .. math::
 
-  Z \sim \text{GEV}(\mu, \sigma, \xi)
+    Z \sim \text{GEV}(\mu, \sigma, \xi)
 
 where
 
 .. math::
 
-  \mu &= 1 + 2 x\\
-  \log(\sigma) &= 2 + 1.3x\\
-  \xi &= 0.1 \\
-  X &~\sim N(0, 1) \\
+    \mu &= 1 + 2 x\\
+    \log(\sigma) &= 2 + 1.3x\\
+    \xi &= 0.1 \\
+    X &~\sim N(0, 1) \\
 
 .. code-block:: julia
 
-  # generate the data
-  using ExtremeValueDistributions
-  using Distributions
-  srand(100)
-  n = 1000
-  X = hcat(ones(n), rand(Normal(0, 1), n))
-  βμ = [1.0, 2.0]
-  μ  = X * βμ
-  βσ = [2.0, 1.3]
-  σ  = exp(X * βσ)
-  ξ  = 0.1
-  y = reshape([rand(GeneralizedExtremeValue(μ[i], σ[i], ξ), 1)[1] for i = 1:n], n, 1)
+    # generate the data
+    using ExtremeValueDistributions
+    using Distributions
+    srand(100)
+    n = 1000
+    X = hcat(ones(n), rand(Normal(0, 1), n))
+    βμ = [1.0, 2.0]
+    μ  = X * βμ
+    βσ = [2.0, 1.3]
+    σ  = exp(X * βσ)
+    ξ  = 0.1
+    y = reshape([rand(GeneralizedExtremeValue(μ[i], σ[i], ξ), 1)[1] for i = 1:n], n, 1)
 
 .. code-block:: julia
 
-  # fit the model
-  results = fit_mcmc(GeneralizedExtremeValue, y,
-                     Xμ = X, Xσ = X, βμsd = 100.0, βσsd = 50.0, βξsd = 1.0,
-                     βμseq = false, βσseq = false, βξseq = false,
-                     iters=10000, burn=8000,
-                     verbose=true, report=500)
+    # fit the model
+    results = fit_mcmc(GeneralizedExtremeValue, y,
+                       Xμ = X, Xσ = X, βμsd = 100.0, βσsd = 50.0, βξsd = 1.0,
+                       βμseq = false, βσseq = false, βξseq = false,
+                       iters=10000, burn=8000,
+                       verbose=true, report=500)
 
 .. code-block:: julia
 
-  # plot the posterior distribution
-  using Gadfly
-  plot(x = 1:10000, y=results.βμpost[:, 1], Geom.line)
-  plot(x = 1:10000, y=results.βμpost[:, 2], Geom.line)
-  plot(x = 1:10000, y=results.βσpost[:, 1], Geom.line)
-  plot(x = 1:10000, y=results.βσpost[:, 2], Geom.line)
-  plot(x = 1:10000, y=results.βξpost, Geom.line)
+    # plot the posterior distribution
+    using Gadfly
+    plot(x = 1:10000, y=results.βμpost[:, 1], Geom.line)
+    plot(x = 1:10000, y=results.βμpost[:, 2], Geom.line)
+    plot(x = 1:10000, y=results.βσpost[:, 1], Geom.line)
+    plot(x = 1:10000, y=results.βσpost[:, 2], Geom.line)
+    plot(x = 1:10000, y=results.βξpost, Geom.line)
 
 
 Simulated Example: Generalized Pareto Distribution
@@ -295,13 +295,13 @@ MLE data analysis
 
 .. code-block:: julia
 
-  # import the data
-  using ExtremeValueDistributions
-  df = extremedata("portpirie")
-  results = fit_mle_optim(GeneralizedExtremeValue, df[:SeaLevel], [0.5, 0.5, 0.5])
-  println("μ = $(results[1])")
-  println("σ = $(exp(results[2]))")
-  println("ξ = $(results[3])")
+    # import the data
+    using ExtremeValueDistributions
+    df = extremedata("portpirie")
+    results = fit_mle_optim(GeneralizedExtremeValue, df[:SeaLevel], [0.5, 0.5, 0.5])
+    println("μ = $(results[1])")
+    println("σ = $(exp(results[2]))")
+    println("ξ = $(results[3])")
 
 MCMC data analysis
 """"""""""""""""""
@@ -334,13 +334,13 @@ MLE data analysis
 
 .. code-block:: julia
 
-  # import the data
-  using ExtremeValueDistributions
-  df = extremedata("rainfall")
-  results = fit_mle_optim(GeneralizedPareto, df[:rainfall], [40.0, 0.0, 0.0])
-  println("μ = $(results[1])")  # threshold fixed by user
-  println("σ = $(exp(results[2]))")
-  println("ξ = $(results[3])")
+    # import the data
+    using ExtremeValueDistributions
+    df = extremedata("rainfall")
+    results = fit_mle_optim(GeneralizedPareto, df[:rainfall], [40.0, 0.0, 0.0])
+    println("μ = $(results[1])")  # threshold fixed by user
+    println("σ = $(exp(results[2]))")
+    println("ξ = $(results[3])")
 
 MCMC data analysis
 """"""""""""""""""
@@ -349,18 +349,18 @@ We illustrate how to fit the ``rainfall`` dataset using a generalized Pareto dis
 
 .. code-block:: julia
 
-  # import the data
-  using ExtremeValueDistributions
-  df = extremedata("rainfall")
-  results = fit_mcmc(GeneralizedPareto, df[:rainfall], 40.0, iters = 20000, burn = 18000,
-                     verbose = true, report = 1000)
+    # import the data
+    using ExtremeValueDistributions
+    df = extremedata("rainfall")
+    results = fit_mcmc(GeneralizedPareto, df[:rainfall], 40.0, iters = 20000, burn = 18000,
+                       verbose = true, report = 1000)
 
 
 
 .. code-block:: julia
 
-  # plot the posterior distributions
-  using Gadfly
-  plot(x = 1:20000, y = exp(results.βσpost), Geom.line)
-  plot(x = 1:20000, y = results.βξpost, Geom.line)
+    # plot the posterior distributions
+    using Gadfly
+    plot(x = 1:20000, y = exp(results.βσpost), Geom.line)
+    plot(x = 1:20000, y = results.βξpost, Geom.line)
 
