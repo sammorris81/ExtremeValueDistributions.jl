@@ -7,7 +7,7 @@ Maximum Likelihood fitting for Extreme Value Distributions
 Maximum Likelihood Estimates (MLEs) of the model parameters for the generalized extreme value distribution (GEV) and generalized Pareto distribution (GPD) must be obtained via numerical optimization routines. The method ``fit_mle_optim()`` is fits both types of distributions by calling ``optimize`` from ``Optim.jl`` to minimize the negative log-likelihood function (i.e., maximized the log-likelihood) with respect to the parameters.
 
 Common interface
-^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~
 
 .. function:: fit_mle_optim()
 
@@ -31,7 +31,7 @@ Results
 After iterating to convergence (or divergence) from ``attempts`` different initial values, ``fit_mle_optim`` returns the best maximizers of the log-likelihood, ``[βμ, βσ, βξ]``, where ``μ = Xμ * βμ``, ``logσ = Xσ * βσ``, and ``ξ = Xξ * βξ``.
 
 Simulated Example: Generalized Extreme Value
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 We generate the following generalized extreme value distribution to demonstrate the capabilities of ``fit_mle_optim()``. Let
 
@@ -69,7 +69,7 @@ where
 
 
 Simulated Example: Generalized Pareto Distribution
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 We generate the following generalized Pareto distribution to demonstrate the capabilities of ``fit_mle_optim()``. Let
 
@@ -109,7 +109,7 @@ MCMC fitting for Extreme Value Distributions
 We have implemented a random walk metropolis hastings MCMC sampler to fit model parameters for the generalized extreme value distribution (GEV) and generalized Pareto distribution (GPD). We use an adaptive sampler that adjusts the standard deviation of the candidate distribution until the acceptance rate is between 0.25 and 0.50. The method ``fit_mcmc()`` is used to fit both types of distributions.
 
 Common interface
-^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~
 
 .. function:: fit_mcmc()
 
@@ -142,7 +142,7 @@ Missing data
 When ``y`` is a ``DataFrame``, then the user can include ``NA`` values for ``fit_mcmc()``. In the current version of the package, ``NA`` values are assumed to be missing at random and are removed from the dataset.
 
 Results
-^^^^^^^
+~~~~~~~
 
 Let ``results`` be a type of ``GeneralizedExtremeValuePosterior`` or ``GeneralizedParetoPosterior``. The full list of available fields is
 
@@ -177,7 +177,7 @@ The following three results fields are ``MetropolisParameter`` types: a) ``resul
 * Sequential update: ``results.βμ.seq``
 
 Simulated Example: Generalized Extreme Value
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 We generate the following generalized extreme value distribution to demonstrate the capabilities of ``fit_mcmc()``. Let
 
@@ -230,7 +230,7 @@ where
 
 
 Simulated Example: Generalized Pareto Distribution
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 We generate the following generalized Pareto distribution to demonstrate the capabilities of ``fit_mcmc()``. Let
 
@@ -280,7 +280,7 @@ Data analysis
 -------------
 
 Port Pirie sea level data
-^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The dataset ``portpirie`` consists of annual maximum sea levels (in meters) from Port Pirie, South Australia, from 1928 to 1987. This dataset comes from the ``evdbayes`` package in ``R``. Data can be loaded into ``Julia`` using ``extremedata("portpirie")``.
 
@@ -319,7 +319,7 @@ We illustrate how to fit the ``portpirie`` dataset using a generalized extreme v
   plot(x = 1:20000, y = results.βξpost, Geom.line)
 
 Rainfall analysis
-^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~
 
 The dataset ``rainfall`` contains 20820 daily rainfall observations (in mm) recorded at a rain gauge in England over 57 years. Three of the years contain only ``NA`` values, and of the remaining observations 54, are ``NA`` values. This dataset comes from the ``evdbayes`` package in ``R``.
 
