@@ -4,6 +4,100 @@ Distribution Fitting
 Maximum Likelihood fitting for Extreme Value Distributions
 ----------------------------------------------------------
 
+Maximum Likelihood Estimates (MLEs) of the model parameters for the generalized extreme value distribution (GEV) and generalized Pareto distribution (GPD) must be obtained via numerical optimization routines. The method ``fit_mle_optim()`` is fits both types of distributions by calling ``optimize`` from ``Optim.jl`` to minimize the negative log-likelihood function (i.e., maximized the log-likelihood) with respect to the parameters.
+
+**Common interface**
+
+.. function:: fit_mle_optim()
+
+Let ``y`` be an ``n`` x 1 vector of responses. The method ``fit_mle_optim()`` is used to fit the GEV or GPD distribution. By default ``fit_mle_optim(GeneralizedExtremeValue, y, init)`` fits a GEV (μ, σ, ξ) distribution to the data, and ``fit_mle_optim(GeneralizedPareto, y, init)`` fits a GPD (init[1], σ, ξ) distribution. Optional named arguments include:
+
+* ``Xμ``: matrix of covariates for μ (Default = ``ones(y)``, *GEV only*)
+* ``μ``: threshold value (Default = ``0.0``, *GPD only*)
+* ``Xσ``: matrix of covariates for σ (Default = ``ones(y)``)
+* ``Xξ``: matrix of covariates for ξ (Default = ``ones(y)``)
+* ``verbose``: do we want to print out periodic updates (Default = ``false``)
+* ``attempts``: number of times to vary initial conditions and attempt to maximize the likelihood (Default = ``10``)
+
+*Missing data*
+
+When ``y`` is a ``DataFrame``, then the user can include ``NA`` values for ``fit_mle_optim()``. In the current version of the package, ``NA`` values are assumed to be missing at random and are removed from the dataset.
+
+**Results**
+
+After iterating to convergence (or divergence) from ``attempts`` different initial values, ``fit_mle_optim`` returns the best maximizers of the log-likelihood, ``[βμ, βσ, βξ]``, where ``μ = Xμ * βμ``, ``logσ = Xσ * βσ``, and ``ξ = Xξ * βξ``. 
+
+**Simulated Example: Generalized Extreme Value**
+
+We generate the following generalized extreme value distribution to demonstrate the capabilities of ``fit_mle_optim()``. Let
+
+.. math::
+
+  Z \sim \text{GEV}(\mu, \sigma, \xi)
+
+where
+
+.. math::
+
+  \mu &= 1\\
+  \log(\sigma) &= 2 + 1.3 * X\\
+  \xi &= 0.1 \\
+  X &~\sim N(0, 1) \\
+
+.. code-block:: julia
+
+  # generate the data
+  using ExtremeValueDistributions
+  using Distributions
+  srand(100)
+  n = 1000
+  X = hcat(ones(n), rand(Normal(0, 1), n))
+  βμ = [1.0, 0.0]
+  μ  = X * βμ
+  βσ = [2.0, 1.3]
+  σ  = exp(X * βσ)
+  ξ  = 0.1
+  y = reshape([rand(GeneralizedExtremeValue(μ[i], σ[i], ξ), 1)[1] for i = 1:n], n, 1)
+
+  # fit the model
+  results = fit_mle_optim(GeneralizedExtremeValue, y, [0.0, 0.0, 0.0], Xσ = X)
+  println(results)  # [βμ, βσ, βξ]
+
+
+**Simulated Example: Generalized Pareto Distribution**
+
+We generate the following generalized Pareto distribution to demonstrate the capabilities of ``fit_mle_optim()``. Let
+
+.. math::
+
+  Z \sim \text{GPD}(0, \sigma, \xi)
+
+where
+
+.. math::
+
+  \log(\sigma) &= 2 + 1.3 * X\\
+  \xi &= 0.1 \\
+  X &~\sim N(0, 1) \\
+
+.. code-block:: julia
+
+  # generate the data
+  using ExtremeValueDistributions
+  using Distributions
+  srand(100)
+  n = 1000
+  X = hcat(ones(n), rand(Normal(0, 1), n))
+  βσ = [2.0, 1.3]
+  σ  = exp(X * βσ)
+  ξ  = 0.1
+  y = reshape([rand(GeneralizedExtremeValue(0.0, σ[i], ξ), 1)[1] for i = 1:n], n, 1)
+
+  # fit the model
+  results = fit_mcmc(GeneralizedPareto, y, [0.0, 1.0, 1.0], Xσ = X)
+  println(results)  # [μ, βσ, βξ]
+
+
 MCMC fitting for Extreme Value Distributions
 --------------------------------------------
 
@@ -169,6 +263,15 @@ Data analysis
 
 The dataset ``portpirie`` consists of annual maximum sea levels (in meters) from Port Pirie, South Australia, from 1928 to 1987. This dataset comes from the ``evdbayes`` package in ``R``. Data can be loaded into ``Julia`` using ``extremedata("portpirie")``.
 
+*MLE data analysis*
+
+.. code-block:: julia
+
+  # import the data
+  using ExtremeValueDistributions
+  df = extremedata("portpirie")
+  results = fit_mle_optim(GeneralizedExtremeValue, df[:SeaLevel], [0.5, 0.5, 0.5])
+
 *MCMC data analysis*
 
 We illustrate the fitting for the ``portpirie`` dataset below. The data are fit using 20000 iterations with 18000 burnin.
@@ -190,6 +293,15 @@ We illustrate the fitting for the ``portpirie`` dataset below. The data are fit 
 **Rainfall analysis**
 
 The dataset ``rainfall`` contains 20820 daily rainfall observations (in mm) recorded at a rain gauge in England over 57 years. Three of the years contain only ``NA`` values, and of the remaining observations 54, are ``NA`` values. This dataset comes from the ``evdbayes`` package in ``R``.
+
+*MLE data analysis*
+
+.. code-block:: julia
+  
+  # import the data
+  using ExtremeValueDistributions
+  df = extremedata("rainfall")
+  results = fit_mle_optim(GeneralizedPareto, df[:rainfall], [40.0, 0.0, 0.0])
 
 *MCMC data analysis*
 
