@@ -160,7 +160,7 @@ Posterior samples are available as matrices in ``results.βμpost``, ``results.�
 
 **MetropolisParameters**
 
-The following three results fields are ``MetropolisParameter`` types: a)``results.βμ``, b)``results.βσ``, and c)``results.βξ``. This type is still under development, but we have included some basic documentation here. The following fields give information about the prior distributions used along with information about final candidate standard deviation and acceptance rates. Here are some of the more useful fields in the ``MetropolisParameter`` type.
+The following three results fields are ``MetropolisParameter`` types: a) ``results.βμ``, b) ``results.βσ``, and c) ``results.βξ``. This type is still under development, but we have included some basic documentation here. The following fields give information about the prior distributions used along with information about final candidate standard deviation and acceptance rates. Here are some of the more useful fields in the ``MetropolisParameter`` type.
 
 * Post-burnin acceptance rates: ``results.βμ.acc ./ results.βμ.att``
 * Prior distribution: ``results.βμ.prior``
@@ -178,8 +178,8 @@ where
 
 .. math::
 
-  \mu &= 1 + 2 X\\
-  \log(\sigma) &= 2 + 1.3 * X\\
+  \mu &= 1 + 2 x\\
+  \log(\sigma) &= 2 + 1.3x\\
   \xi &= 0.1 \\
   X &~\sim N(0, 1) \\
 
@@ -226,7 +226,7 @@ where
 
 .. math::
 
-  \log(\sigma) &= 2 + 1.3 * X\\
+  \log(\sigma) &= 2 + 1.3 x\\
   \xi &= 0.1 \\
   X &~\sim N(0, 1) \\
 
@@ -312,7 +312,8 @@ We illustrate the fitting for the ``rainfall`` dataset below. The data are fit u
   # import the data
   using ExtremeValueDistributions
   df = extremedata("rainfall")
-  results = fit_mcmc(GeneralizedPareto, df[:rainfall], 40.0, iters = 20000, burn = 18000, verbose = true, report = 1000)
+  results = fit_mcmc(GeneralizedPareto, df[:rainfall], 40.0, iters = 20000, burn = 18000,
+                     verbose = true, report = 1000)
 
   # plot the posterior distributions
   using Gadfly
