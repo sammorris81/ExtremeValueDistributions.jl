@@ -65,6 +65,7 @@ where
 
 
 We can also allow for linear trends in the parameters of the GEV. Let
+
 .. math::
 
   Z \sim \text{GEV}(\mu, \sigma, \xi)
