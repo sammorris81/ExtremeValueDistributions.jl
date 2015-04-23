@@ -13,7 +13,7 @@ n = 1000
 μₐ = 1.0
 σₐ = 2.0
 ξₐ = 0.1
-y = reshape(rand(GeneralizedExtremeValue(μₐ, σₐ, ξₐ), n), n, 1)
+y = rand(GeneralizedExtremeValue(μₐ, σₐ, ξₐ), n)
 
 # returns GeneralizedExtremeValuePosterior object
 results = fit_mcmc(GeneralizedExtremeValue, y, iters=10000, burn=8000,
@@ -42,7 +42,7 @@ X = hcat(ones(n), rand(Normal(0, 1), n))
 σₐ  = exp(X * βσₐ)
 βξₐ = 0.1
 ξₐ  = 0.1
-y = reshape([rand(GeneralizedExtremeValue(μₐ[i], σₐ[i], ξₐ), 1)[1] for i = 1:n], n, 1)
+y = [rand(GeneralizedExtremeValue(μₐ[i], σₐ[i], ξₐ), 1)[1] for i = 1:n]
 
 # to include covariates for μ, σ, or ξ, you need to include arguments
 # Xμ, Xσ, and Xξ
@@ -77,7 +77,7 @@ n = 1000
 μₐ = 1.0
 σₐ = 2.0
 ξₐ = 0.1
-y = reshape(rand(GeneralizedPareto(μₐ, σₐ, ξₐ), n), n, 1)
+y = rand(GeneralizedPareto(μₐ, σₐ, ξₐ), n)
 μ = fill(1.0, size(y, 1))
 
 # returns GeneralizedParetoPosterior object
@@ -104,7 +104,7 @@ X = hcat(ones(n), rand(Normal(0, 1), n))
 σₐ  = exp(X * βσₐ)
 βξₐ = 0.1
 ξₐ  = 0.1
-y = reshape([rand(GeneralizedPareto(0.0, σₐ[i], ξₐ), 1)[1] for i = 1:n], n, 1)
+y = [rand(GeneralizedPareto(0.0, σₐ[i], ξₐ), 1)[1] for i = 1:n]
 
 
 # to include covariates for σ, or ξ, you need to include arguments Xσ, and Xξ

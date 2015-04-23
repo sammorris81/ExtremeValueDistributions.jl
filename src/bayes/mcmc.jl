@@ -1,11 +1,11 @@
 abstract ExtremePosterior
 
 type GeneralizedExtremeValuePosterior <: ExtremePosterior
-  y::Array{Float64}        # response variable
+  y::Array{Float64, 1}     # response variable
   n::Integer               # number of responses
-  Xμ::Array{Float64}       # covariates for fitting μ
-  Xσ::Array{Float64}       # covariates for fitting σ
-  Xξ::Array{Float64}       # covariates for fitting ξ
+  Xμ::Array{Float64, 2}    # covariates for fitting μ
+  Xσ::Array{Float64, 2}    # covariates for fitting σ
+  Xξ::Array{Float64, 2}    # covariates for fitting ξ
   βμ::MetropolisParameter  # metropolis parameters for βμ
   βσ::MetropolisParameter  # metropolis parameters for βσ
   βξ::MetropolisParameter  # metropolis parameters for βξ
@@ -21,11 +21,11 @@ type GeneralizedExtremeValuePosterior <: ExtremePosterior
 end
 
 type GeneralizedParetoPosterior <: ExtremePosterior
-  y::Array{Float64}        # response variable
+  y::Array{Float64, 1}     # response variable
   n::Integer               # number of responses per day
-  μ::Array{Float64}        # GPD location parameter
-  Xσ::Array{Float64}       # covariates for fitting σ
-  Xξ::Array{Float64}       # covariates for fitting ξ
+  μ::Array{Float64, 1}     # GPD location parameter
+  Xσ::Array{Float64, 2}    # covariates for fitting σ
+  Xξ::Array{Float64, 2}    # covariates for fitting ξ
   βσ::MetropolisParameter  # metropolis parameters for βσ
   βξ::MetropolisParameter  # metropolis parameters for βξ
   βσpost::Array{Float64}   # posterior samples for βσ
@@ -39,8 +39,8 @@ type GeneralizedParetoPosterior <: ExtremePosterior
 end
 
 function fit_mcmc(::Type{GeneralizedExtremeValue}, y::Array{Float64, 1};
-                  Xμ::Array{Float64}=ones(y), Xσ::Array{Float64}=ones(y),
-                  Xξ::Array{Float64}=ones(y),
+                  Xμ::Array{Float64}=ones(length(y), 1), Xσ::Array{Float64}=ones(length(y), 1),
+                  Xξ::Array{Float64}=ones(length(y), 1),
                   βμsd::Real=100.0, βσsd::Real=100.0, βξsd::Real=1.0,
                   βμtune::Real=1.0, βσtune::Real=1.0, βξtune::Real=1.0,
                   βμseq::Bool=true, βσseq::Bool=true, βξseq::Bool=true,
@@ -86,9 +86,9 @@ function fit_mcmc(::Type{GeneralizedExtremeValue}, y::Array{Float64, 1};
   # data and covariates for MCMC
   gevfit.n  = n
   gevfit.y  = y
-  gevfit.Xμ = reshape(Xμ, n, npμ)  # always convert to a matrix
-  gevfit.Xσ = reshape(Xσ, n, npσ)  # always convert to a matrix
-  gevfit.Xξ = reshape(Xξ, n, npξ)  # always convert to a matrix
+  gevfit.Xμ = coercematrix(Xμ, n)  # always convert to a matrix
+  gevfit.Xσ = coercematrix(Xσ, n)  # always convert to a matrix
+  gevfit.Xξ = coercematrix(Xξ, n)  # always convert to a matrix
 
   # parameters for the mcmc
   gevfit.βμ = createmetropolis(npμ, prior=Distributions.Normal(0.0, βμsd),
@@ -114,7 +114,7 @@ function fit_mcmc(::Type{GeneralizedExtremeValue}, y::Array{Float64, 1};
   return gevfit
 end
 
-#
+# permit DataArray in case someone is using a DataFrame
 function fit_mcmc(::Type{GeneralizedExtremeValue}, y::DataArray{Float64, 1};
                   Xμ::DataArray{Float64} = ones(y), Xσ::DataArray{Float64} = ones(y),
                   Xξ::DataArray{Float64} = ones(y),
@@ -125,7 +125,7 @@ function fit_mcmc(::Type{GeneralizedExtremeValue}, y::DataArray{Float64, 1};
                   verbose::Bool = false, report::Integer = 1000)
 
   # remove NAs
-  these = find(!isna(y))
+  these = find(!isna(y))  # what values do we want to keep
   if length(these) != size(y, 1)
     println("Keeping $(length(these)) out of $(length(y)) observations. Remaining observations removed due to NA")
     y = y[these]
@@ -133,11 +133,10 @@ function fit_mcmc(::Type{GeneralizedExtremeValue}, y::DataArray{Float64, 1};
     Xσ = size(Xσ, 2) == 1 ? Xσ[these] : Xσ[these, :]
     Xξ = size(Xξ, 2) == 1 ? Xξ[these] : Xξ[these, :]
   end
+  n = size(y, 1)
 
   # make sure that n matches for y, Xμ, Xσ, and Xξ
-  @assert size(y, 1) == size(Xμ, 1)
-  @assert size(y, 1) == size(Xσ, 1)
-  @assert size(y, 1) == size(Xξ, 1)
+  @assert n == size(Xμ, 1) == size(Xσ, 1) == size(Xξ, 1)
 
   # basic functionality for dataframes
   gevfit = fit_mcmc(GeneralizedExtremeValue, array(y);
@@ -150,9 +149,10 @@ function fit_mcmc(::Type{GeneralizedExtremeValue}, y::DataArray{Float64, 1};
   return gevfit
 end
 
-function fit_mcmc(::Type{GeneralizedPareto}, y::Array{Float64, 1}, μ::Array{Float64};
-                  Xσ::Array{Float64} = ones(y),
-                  Xξ::Array{Float64} = ones(y),
+# y, Xσ, Xξ, μ arrays
+function fit_mcmc(::Type{GeneralizedPareto}, y::Array{Float64, 1}, μ::Array{Float64, 1};
+                  Xσ::Array{Float64} = ones(length(y), 1),
+                  Xξ::Array{Float64} = ones(length(y), 1),
                   βσsd::Real = 100.0, βξsd::Real = 1.0,
                   βσtune::Real = 1.0, βξtune::Real = 1.0,
                   βσseq::Bool = true, βξseq::Bool = true,
@@ -189,22 +189,25 @@ function fit_mcmc(::Type{GeneralizedPareto}, y::Array{Float64, 1}, μ::Array{Flo
   npξ = size(Xξ, 2)
 
   # data and covariates for MCMC
-  @assert n == size(μ, 1)  # make sure that a user-defined μ array is the correct length
+  @assert n == size(μ, 1)   # make sure that a user-defined μ array is the correct length
+  Xσ = coercematrix(Xσ, n)  # always convert to a matrix
+  Xξ = coercematrix(Xξ, n)  # always convert to a matrix
+
   these = find(y .> μ)     # to reduce computation only use values above the threshold
   if length(these) > 0
     println("Fitting MCMC using the $(length(these)) observations above the threshold.")
     n  = length(these)
     y  = y[these]
     μ  = μ[these]
-    Xσ = size(Xσ, 2) == 1 ? Xσ[these] : Xσ[these, :]
-    Xξ = size(Xξ, 2) == 1 ? Xξ[these] : Xξ[these, :]
+    Xσ = Xσ[these, :]
+    Xξ = Xξ[these, :]
   end
 
   gpdfit.n  = n
   gpdfit.y  = y
   gpdfit.μ  = μ
-  gpdfit.Xσ = reshape(Xσ, n, npσ)  # always convert to a matrix
-  gpdfit.Xξ = reshape(Xξ, n, npξ)  # always convert to a matrix
+  gpdfit.Xσ = Xσ
+  gpdfit.Xξ = Xξ
 
   # parameters for the mcmc
   gpdfit.βσ = createmetropolis(npσ, prior = Distributions.Normal(0.0, βσsd),
@@ -226,6 +229,7 @@ function fit_mcmc(::Type{GeneralizedPareto}, y::Array{Float64, 1}, μ::Array{Flo
   return gpdfit
 end
 
+# y, Xσ, Xξ arrays; μ scalar
 function fit_mcmc(::Type{GeneralizedPareto}, y::Array{Float64, 1}, μ::Real;
                   Xσ::Array{Float64} = ones(y),
                   Xξ::Array{Float64} = ones(y),
@@ -247,6 +251,7 @@ function fit_mcmc(::Type{GeneralizedPareto}, y::Array{Float64, 1}, μ::Real;
   return gpdfit
 end
 
+# y, Xσ, Xξ dataframes; μ scalar
 function fit_mcmc(::Type{GeneralizedPareto}, y::DataArray{Float64, 1}, μ::Real;
                   Xσ::DataArray{Float64} = ones(y),
                   Xξ::DataArray{Float64} = ones(y),
@@ -264,13 +269,13 @@ function fit_mcmc(::Type{GeneralizedPareto}, y::DataArray{Float64, 1}, μ::Real;
     Xσ = size(Xσ, 2) == 1 ? Xσ[these] : Xσ[these, :]
     Xξ = size(Xξ, 2) == 1 ? Xξ[these] : Xξ[these, :]
   end
+  n = size(y, 1)
 
   # make sure that n matches for y, Xμ, Xσ, and Xξ
-  @assert size(y, 1) == size(Xσ, 1)
-  @assert size(y, 1) == size(Xξ, 1)
+  @assert n == size(Xσ, 1) == size(Xξ, 1)
 
   # basic functionality for dataframes with single threshold
-  μ = fill(float(μ), size(y, 1))
+  μ = fill(float(μ), n)
 
   gpdfit = fit_mcmc(GeneralizedPareto, array(y), μ;
                     Xσ = array(Xσ), Xξ = array(Xξ),
@@ -282,7 +287,8 @@ function fit_mcmc(::Type{GeneralizedPareto}, y::DataArray{Float64, 1}, μ::Real;
   return gpdfit
 end
 
-function fit_mcmc(::Type{GeneralizedPareto}, y::DataArray{Float64}, μ::Array{Float64};
+# y, Xσ, Xξ dataframes; μ array
+function fit_mcmc(::Type{GeneralizedPareto}, y::DataArray{Float64}, μ::Array{Float64, 1};
                   Xσ::DataArray{Float64} = ones(y),
                   Xξ::DataArray{Float64} = ones(y),
                   βσsd::Real = 100.0, βξsd::Real = 1.0,
@@ -291,7 +297,20 @@ function fit_mcmc(::Type{GeneralizedPareto}, y::DataArray{Float64}, μ::Array{Fl
                   iters::Integer = 30000, burn::Integer = 10000, thin::Integer = 1,
                   verbose::Bool = false, report::Integer = 1000)
 
-  # basic functionality for dataframes
+  # remove NAs
+  these = find(!isna(y))
+  if length(these) != size(y, 1)
+    println("Keeping $(length(these)) out of $(length(y)) observations. Remaining observations removed due to NA")
+    y = y[these]
+    μ = μ[these]
+    Xσ = size(Xσ, 2) == 1 ? Xσ[these] : Xσ[these, :]
+    Xξ = size(Xξ, 2) == 1 ? Xξ[these] : Xξ[these, :]
+  end
+  n = size(y, 1)
+
+  # make sure that n matches for y, Xμ, Xσ, and Xξ
+  @assert n == size(Xσ, 1) == size(Xξ, 1)
+
   gpdfit = fit_mcmc(GeneralizedPareto, array(y), μ;
                     Xσ = array(Xσ), Xξ = array(Xξ),
                     βσsd = βσsd, βξsd = βξsd,
