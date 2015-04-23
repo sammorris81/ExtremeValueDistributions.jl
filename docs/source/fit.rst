@@ -80,9 +80,9 @@ where
 
 .. math::
 
-  \mu = 1 + 2 X_1 \\
-  \log(\sigma) = 2 + 1.3 * X_2\\
-  \xi = 0.1
+  \mu &= 1 + 2 X_1 \\
+  \log(\sigma) &= 2 + 1.3 * X_2\\
+  \xi &= 0.1
 
 *Generate the data*
 
@@ -104,10 +104,10 @@ where
 .. code-block:: julia
 
   results = fit_mcmc(GeneralizedExtremeValue, y,
-                   Xμ = X, Xσ = X, βμsd = 100.0, βσsd = 50.0, βξsd = 1.0,
-                   βμseq = false, βσseq = false, βξseq = false,
-                   iters=10000, burn=8000,
-                   verbose=true, report=500)
+                     Xμ = X, Xσ = X, βμsd = 100.0, βσsd = 50.0, βξsd = 1.0,
+                     βμseq = false, βσseq = false, βξseq = false,
+                     iters=10000, burn=8000,
+                     verbose=true, report=500)
 
 *Plot the posterior distribution*
 
