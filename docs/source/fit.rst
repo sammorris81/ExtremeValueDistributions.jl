@@ -48,10 +48,10 @@ We generate the following generalized extreme value distribution to demonstrate 
     μ = 1.0
     σ = 2.0
     ξ = 0.1
-    y = reshape(rand(GeneralizedExtremeValue(μ, σ, ξ), n), n, 1)
+    y = rand(GeneralizedExtremeValue(μ, σ, ξ), n)
 
     # returns GeneralizedExtremeValue object with parameters as Max. Like. Estimates
-    results = fit_mle_optim(GeneralizedExtremeValue, vec(y), [0.5, 0.5, 0.5])
+    results = fit_mle_optim(GeneralizedExtremeValue, y, [0.5, 0.5, 0.5])
     println("μ = $(results[1])")
     println("σ = $(exp(results[2]))")
     println("ξ = $(results[3])")
@@ -67,8 +67,8 @@ where
 
 .. math::
 
-    \mu &= 1 + 2 X\\
-    \log(\sigma) &= 2 + 1.3 * X\\
+    \mu &= 1 + 2 x\\
+    \log(\sigma) &= 2 + 1.3 x\\
     \xi &= 0.1 \\
     X &~\sim N(0, 1) \\
 
@@ -78,14 +78,14 @@ where
     using ExtremeValueDistributions
     using Distributions
     srand(100)
-    n = 1000
-    X = hcat(ones(n), rand(Normal(0, 1), n))
+    n  = 1000
+    X  = hcat(ones(n), rand(Normal(0, 1), n))
     βμ = [1.0, 2.0]
     μ  = X * βμ
     βσ = [2.0, 1.3]
     σ  = exp(X * βσ)
     ξ  = 0.1
-    y = [rand(GeneralizedExtremeValue(μ[i], σ[i], ξ), 1)[1] for i = 1:n]
+    y  = [rand(GeneralizedExtremeValue(μ[i], σ[i], ξ), 1)[1] for i = 1:n]
 
     # fit the model
     results = fit_mle_optim(GeneralizedExtremeValue, y, [0.5, 0.5, 0.5], Xμ = X, Xσ = X)
@@ -115,15 +115,15 @@ where
     using ExtremeValueDistributions
     using Distributions
     srand(100)
-    n = 1000
-    X = hcat(ones(n), rand(Normal(0, 1), n))
+    n  = 1000
+    X  = hcat(ones(n), rand(Normal(0, 1), n))
     βσ = [2.0, 1.3]
     σ  = exp(X * βσ)
     ξ  = 0.1
-    y = reshape([rand(GeneralizedExtremeValue(0.0, σ[i], ξ), 1)[1] for i = 1:n], n, 1)
+    y  = [rand(GeneralizedExtremeValue(0.0, σ[i], ξ), 1)[1] for i = 1:n]
 
     # fit the model
-    results = fit_mle_optim(GeneralizedPareto, vec(y), [0.0, 0.5, 0.5], Xσ = X)
+    results = fit_mle_optim(GeneralizedPareto, y, [0.0, 0.5, 0.5], Xσ = X)
     println(results)  # [μ, βσ, βξ]
 
 
@@ -212,6 +212,7 @@ We generate the following generalized extreme value distribution to demonstrate 
 .. code-block:: julia
 
     # generate covariate data and simulated observations
+    using ExtremeValueDistributions
     srand(1000)  # set seed
     n = 1000
     μ = 1.0
@@ -219,7 +220,7 @@ We generate the following generalized extreme value distribution to demonstrate 
     ξ = 0.1
     y = rand(GeneralizedExtremeValue(μ, σ, ξ), n)
 
-We will fit the data using priors distributions of N(0, 100) for μ and log(σ), and a prior of N(0, 1) for ξ
+We will fit the data using prior distributions of N(0, 100) for μ and log(σ), and a prior of N(0, 1) for ξ.
 
 .. code-block:: julia
 
@@ -257,16 +258,16 @@ where
     using ExtremeValueDistributions
     using Distributions
     srand(100)
-    n = 1000
-    X = hcat(ones(n), rand(Normal(0, 1), n))
+    n  = 1000
+    X  = hcat(ones(n), rand(Normal(0, 1), n))
     βμ = [1.0, 2.0]
     μ  = X * βμ
     βσ = [2.0, 1.3]
     σ  = exp(X * βσ)
     ξ  = 0.1
-    y = [rand(GeneralizedExtremeValue(μ[i], σ[i], ξ), 1)[1] for i = 1:n]
+    y  = [rand(GeneralizedExtremeValue(μ[i], σ[i], ξ), 1)[1] for i = 1:n]
 
-This time, we assign independent priors of N(0, 100) for the βμ terms, independent priors of N(0, 50) for the βσ terms, and a prior of N(0, 1) for ξ.
+We assign independent priors of N(0, 100) for the βμ terms, independent priors of N(0, 50) for the βσ terms, and a prior of N(0, 1) for ξ.
 
 .. code-block:: julia
 
@@ -313,12 +314,12 @@ where
     using ExtremeValueDistributions
     using Distributions
     srand(100)
-    n = 1000
-    X = hcat(ones(n), rand(Normal(0, 1), n))
+    n  = 1000
+    X  = hcat(ones(n), rand(Normal(0, 1), n))
     βσ = [2.0, 1.3]
     σ  = exp(X * βσ)
     ξ  = 0.1
-    y = [rand(GeneralizedExtremeValue(0.0, σ[i], ξ), 1)[1] for i = 1:n]
+    y  = [rand(GeneralizedExtremeValue(0.0, σ[i], ξ), 1)[1] for i = 1:n]
 
 We assign independent priors of N(0, 50) for the βσ terms, and a prior of N(0, 1) for ξ.
 
