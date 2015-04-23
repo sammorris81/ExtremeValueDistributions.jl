@@ -9,7 +9,7 @@ function fit_mle_optim(::Type{GeneralizedExtremeValue}, y::Array{Float64}, init:
     μ = Xμ * βμ
     logσ = Xσ * βσ
     ξ = Xξ * βξ
-   if any(abs(logσ) .> 100.0) return maxval end
+   if any(abs(logσ) .> 20.0) return maxval end
     n = length(y)
     z = zeros(n)
     iξ = ones(n)
@@ -29,7 +29,7 @@ function fit_mle_optim(::Type{GeneralizedExtremeValue}, y::Array{Float64}, init:
         ξzp1[i] = 1.0 + ξ[i] * (y[i] - μ[i]) / σ[i]
         if ξzp1[i] <= 0.0 return maxval end
         negiξlogξzp1[i] = -iξ[i] * log(ξzp1[i])
-        if abs(negiξlogξzp1[i]) > 100.0 return maxval end
+        if abs(negiξlogξzp1[i]) > 20.0 return maxval end
         negll += iξp1[i] * log(ξzp1[i]) + exp(negiξlogξzp1[i])
       end
     end
@@ -92,7 +92,7 @@ function fit_mle_optim(::Type{GeneralizedPareto}, y::Vector, init::Vector;
     βξ = params[(pσ + 1):end]
     logσ = Xσ * βσ
     ξ = Xξ * βξ
-    if any(abs(logσ) .> 100.0) return maxval end
+    if any(abs(logσ) .> 20.0) return maxval end
     n = length(y)
     z = zeros(n)
     ξzp1 = ones(n)
