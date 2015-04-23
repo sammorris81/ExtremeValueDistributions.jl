@@ -53,7 +53,7 @@ Let ``d`` be a distribution of type ``GeneralizedExtremeValue`` or ``Generalized
 * ``logcdf(d, x)`` returns the logarithm of the cumulative distribution function evaluated at `x`
 * ``ccdf(d, x)`` returns the complementary cumulative function evaluated at `x`, i.e. ``1 - cdf(d, x)``
 * ``logccdf(d, x)`` returns the logarithm of the complementary cumulative function evaluated at `x`
-* ``quantile(d, q)`` returns the `q`th quantile value
+* ``quantile(d, q)`` returns the qth quantile value
 * ``cquantile(d, q)`` returns the complementary quantile value, i.e. ``quantile(d, 1 - q)``
 
 *Sampling (Random number generation)*
