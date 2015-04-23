@@ -194,6 +194,8 @@ where
     \xi &= 0.1 \\
     X &~\sim N(0, 1) \\
 
+Generate the data
+
 .. code-block:: julia
 
     # generate the data
@@ -208,6 +210,8 @@ where
     σ  = exp(X * βσ)
     ξ  = 0.1
     y = reshape([rand(GeneralizedExtremeValue(μ[i], σ[i], ξ), 1)[1] for i = 1:n], n, 1)
+
+Fit the model
 
 .. code-block:: julia
 
