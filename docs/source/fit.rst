@@ -82,9 +82,11 @@ where
 
   \mu &= 1 + 2 X_1 \\
   \log(\sigma) &= 2 + 1.3 * X_2\\
-  \xi &= 0.1
+  \xi &= 0.1 \\
+  X_1 &~\sim N(0, 1) \\
+  X_2 &~\sim N(0, 1)
 
-*Generate the data*
+1. Generate the data
 
 .. code-block:: julia
 
@@ -99,7 +101,7 @@ where
   ξ  = 0.1
   y = reshape([rand(GeneralizedExtremeValue(μ[i], σ[i], ξ), 1)[1] for i = 1:n], n, 1)
 
-*Fit the model*
+2. Fit the model
 
 .. code-block:: julia
 
@@ -109,7 +111,7 @@ where
                      iters=10000, burn=8000,
                      verbose=true, report=500)
 
-*Plot the posterior distribution*
+3. Plot the posterior distribution
 
 .. code-block:: julia
 
