@@ -26,14 +26,16 @@ Available methods
 
 Let ``d`` be a distribution of type ``GeneralizedExtremeValue`` or ``GeneralizedPareto``:
 
-*Parameter retrieval*
+Parameter retrieval
+^^^^^^^^^^^^^^^^^^^
 
 * ``params(d)`` returns a tuple of parameters
 * ``location(d)`` returns the location parameter
 * ``scale(d)`` returns the location parameter
 * ``shape(d)`` returns the shape parameter
 
-*Computation of statistics*
+Computation of statistics
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * ``mean(d)`` returns the expectation of distribution ``d``
 * ``var(d)`` returns the variance of distribution ``d``
@@ -44,7 +46,8 @@ Let ``d`` be a distribution of type ``GeneralizedExtremeValue`` or ``Generalized
 * ``kurtosis(d)`` returns the excess kurtosis of distribution ``d``
 * ``entropy(d)`` returns the entropy of distribution ``d``
 
-*Probability evaluation*
+Probability evaluation
+^^^^^^^^^^^^^^^^^^^^^^
 
 * ``insupport(d, x)`` returns whether `x` is within the support of ``d``
 * ``pdf(d, x)`` returns the pdf value evaluated at `x`
@@ -56,7 +59,8 @@ Let ``d`` be a distribution of type ``GeneralizedExtremeValue`` or ``Generalized
 * ``quantile(d, q)`` returns the qth quantile value
 * ``cquantile(d, q)`` returns the complementary quantile value, i.e. ``quantile(d, 1 - q)``
 
-*Sampling (Random number generation)*
+Sampling (Random number generation)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * ``rand(d)`` draws a single sample from ``d``
 * ``rand(d, n)`` draws a vector comprised of `n` independent samples from the distribution ``d``

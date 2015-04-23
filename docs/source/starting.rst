@@ -4,7 +4,8 @@ Getting Started
 Package Installation
 --------------------
 
-*Requirements:*
+Requirements:
+^^^^^^^^^^^^^
 
 This package requires two unregistered packages that are used for fitting the distributions using MCMC methods. To install these packages open Julia and run
 
@@ -14,7 +15,8 @@ This package requires two unregistered packages that are used for fitting the di
     Pkg.clone("https://github.com/sammorris81/DataTransformations.jl.git")
 
 
-*Installation:*
+Installation:
+^^^^^^^^^^^^^
 
 .. code-block:: julia
 
