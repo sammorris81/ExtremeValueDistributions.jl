@@ -45,7 +45,7 @@ function fit_mle_optim(::Type{GeneralizedExtremeValue}, y::Array{Float64}, init:
   opts = Array(Any, attempts)
   for i in 1:attempts  # minimize log-likelihood over varying initial conditions
     if verbose println("Minimizing negative log-likelihood: attempt $i of $attempts") end
-    inits[i] = init + rand(length(init)) - 0.5
+    inits[i] = init + 2.0 * rand(length(init)) - 1.0
     opts[i] = optimize(negloglikelihood, inits[i])  # minimizing negative ll is equivalent to maximizing positive ll
   end
   opts = opts[bool([opt.f_converged for opt in opts])]  # remove opts that failed to converge
@@ -94,12 +94,15 @@ function fit_mle_optim(::Type{GeneralizedPareto}, y::Vector, init::Vector;
     ξ = Xξ * βξ
     if any(abs(logσ) .> 100.0) return maxval end
     n = length(y)
+    z = zeros(n)
     ξzp1 = ones(n)
     negll = sum(logσ)
     σ = exp(logσ)
     for i = 1:n
       if abs(ξ[i]) < tol  # if ξ ϵ (-tol, tol), use Gumbel limit of the GEV for stability
-        negll += y[i] / σ[i]
+        z[i] = y[i] / σ[i]
+        if z[i] < tol return maxval end
+        negll += z[i]
       else  # otherwise, use standard GEV likelihood
         ξzp1[i] = 1.0 + ξ[i] * y[i] / σ[i]
         if ξzp1[i] <= 0.0 return maxval end
@@ -122,7 +125,7 @@ function fit_mle_optim(::Type{GeneralizedPareto}, y::Vector, init::Vector;
   opts = Array(Any, attempts)
   for i in 1:attempts  # minimize log-likelihood over varying initial conditions
     if verbose println("Minimizing negative log-likelihood: attempt $i of $attempts") end
-    inits[i] = init + rand(length(init)) - 0.5
+    inits[i] = init + 2.0 * rand(length(init)) - 1.0
     opts[i] = optimize(negloglikelihood, inits[i])  # minimizing negative ll is equivalent to maximizing positive ll
   end
   opts = opts[bool([opt.f_converged for opt in opts])]  # remove opts that failed to converge
