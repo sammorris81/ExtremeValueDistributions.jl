@@ -6,7 +6,7 @@ The *ExtremeValueDistributions* package extends the *Distributions* to include t
 **Contents:**
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
    starting.rst
    distributions.rst

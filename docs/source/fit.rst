@@ -259,12 +259,16 @@ where
   ξ  = 0.1
   y = reshape([rand(GeneralizedExtremeValue(0.0, σ[i], ξ), 1)[1] for i = 1:n], n, 1)
 
+.. code-block:: julia
+
   # fit the model
   results = fit_mcmc(GeneralizedPareto, y, 0.0,
                      Xσ = X, βσsd = 50.0, βξsd = 1.0,
                      βσseq = false, βξseq = false,
                      iters=10000, burn=8000,
                      verbose=true, report=500)
+
+.. code-block:: julia
 
   # plot the posterior distribution
   using Gadfly
@@ -306,6 +310,8 @@ We illustrate how to fit the ``portpirie`` dataset using a generalized extreme v
   results = fit_mcmc(GeneralizedExtremeValue, df[:SeaLevel],
                      iters = 20000, burn = 18000, verbose = true, report = 2000)
 
+.. code-block:: julia
+
   # plot the posterior distributions
   using Gadfly
   plot(x = 1:20000, y = results.βμpost, Geom.line)
@@ -343,7 +349,7 @@ We illustrate how to fit the ``rainfall`` dataset using a generalized Pareto dis
   results = fit_mcmc(GeneralizedPareto, df[:rainfall], 40.0, iters = 20000, burn = 18000,
                      verbose = true, report = 1000)
 
-.. code-block:: jlcon
+.. code-block:: julia
 
   # plot the posterior distributions
   using Gadfly
