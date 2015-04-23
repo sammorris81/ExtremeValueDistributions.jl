@@ -9,7 +9,6 @@ The *ExtremeValueDistributions* package extends the *Distributions* to include t
    :maxdepth: 2
 
    starting.rst
-   types.rst
    distributions.rst
    mlefit.rst
    mcmcfit.rst
