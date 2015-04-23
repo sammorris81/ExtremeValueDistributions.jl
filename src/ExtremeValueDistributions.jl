@@ -1,6 +1,7 @@
 module ExtremeValueDistributions
 
 using Distributions
+using Optim
 using Compat
 using MetropolisUpdaters  # types for Bayes fitting
 using RDatasets           # for readtable
@@ -66,6 +67,7 @@ export
   sample,
 
   # fitting
+  fit_mle_optim,
   fit_mcmc,
 
   # load data
@@ -75,6 +77,7 @@ export
 ### source files
 include("density/generalizedpareto.jl")
 include("density/generalizedextreme.jl")
+include("mle/mle.jl")
 include("bayes/mcmc.jl")
 include("bayes/generalizedextreme.jl")
 include("bayes/generalizedpareto.jl")
