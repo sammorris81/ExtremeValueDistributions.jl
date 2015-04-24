@@ -13,10 +13,10 @@ Common interface
 
 Let ``y`` be an ``n`` x 1 vector of responses. The method ``fit_mle_optim()`` is used to fit the GEV or GPD distribution. By default ``fit_mle_optim(GeneralizedExtremeValue, y, init)`` fits a GEV (μ, σ, ξ) distribution to the data, and ``fit_mle_optim(GeneralizedPareto, y, init)`` fits a GPD (init[1], σ, ξ) distribution. Optional named arguments include:
 
-* ``Xμ``: matrix of covariates for μ (Default = ``ones(y)``, *GEV only*)
+* ``Xμ``: matrix of covariates for μ (Default = ``ones(length(y), 1)``, *GEV only*)
 * ``μ``: threshold value (Default = ``0.0``, *GPD only*)
-* ``Xσ``: matrix of covariates for σ (Default = ``ones(y)``)
-* ``Xξ``: matrix of covariates for ξ (Default = ``ones(y)``)
+* ``Xσ``: matrix of covariates for σ (Default = ``ones(length(y), 1)``)
+* ``Xξ``: matrix of covariates for ξ (Default = ``ones(length(y), 1)``)
 * ``verbose``: do we want to print out periodic updates (Default = ``false``)
 * ``attempts``: number of times to vary initial conditions and attempt to maximize the likelihood (Default = ``10``)
 
@@ -139,10 +139,10 @@ Common interface
 
 Let ``y`` be an ``n`` x 1 vector of responses. The method ``fit_mcmc()`` is used to fit the GEV or GPD distribution. By default ``fit_mcmc(GeneralizedExtremeValue, y)`` fits a GEV (μ, σ, ξ) distribution to the data, and ``fit_mcmc(GeneralizedPareto, y)`` fits a GPD (0.0, σ, ξ) distribution. Optional named arguments include:
 
-* ``Xμ``: matrix of covariates for μ (Default = ``ones(y)``, *GEV only*)
+* ``Xμ``: matrix of covariates for μ (Default = ``ones(length(y), 1)``, *GEV only*)
 * ``μ``: threshold value (Default = ``0.0``, *GPD only*)
-* ``Xσ``: matrix of covariates for σ (Default = ``ones(y)``)
-* ``Xξ``: matrix of covariates for ξ (Default = ``ones(y)``)
+* ``Xσ``: matrix of covariates for σ (Default = ``ones(length(y), 1)``)
+* ``Xξ``: matrix of covariates for ξ (Default = ``ones(length(y), 1)``)
 * ``βμsd``: prior standard deviation for β parameters for μ (Default = ``100.0``, *GEV only*)
 * ``βσsd``: prior standard deviation for β parameters for σ (Default = ``100.0``)
 * ``βξsd``: prior standard deviation for β parameters for ξ (Default = ``1.0``)
