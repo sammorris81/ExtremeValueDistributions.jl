@@ -1,7 +1,21 @@
-function fit_mle_optim(::Type{GeneralizedExtremeValue}, y::Array{Float64}, init::Vector;
-                       Xμ::Array{Float64}=ones(reshape(y, length(y), 1)), Xσ::Array{Float64}=ones(reshape(y, length(y), 1)),
-                       Xξ::Array{Float64}=ones(reshape(y, length(y), 1)), attempts::Int64=10, verbose::Bool=true)
-  ## must first define function to minimize
+function fit_mle_optim(::Type{GeneralizedExtremeValue}, y::Array{Float64, 1}, init::Vector;
+                       Xμ::Array{Float64}=ones(length(y), 1), Xσ::Array{Float64}=ones(length(y), 1),
+                       Xξ::Array{Float64}=ones(length(y), 1), attempts::Int64=10, verbose::Bool=false)
+  # data and covariates for MLE
+  n = size(y, 1)
+  Xμ = coercematrix(Xμ, n)  # always convert to a matrix
+  Xσ = coercematrix(Xσ, n)  # always convert to a matrix
+  Xξ = coercematrix(Xξ, n)  # always convert to a matrix
+  # set up parameter initial values before maximization
+  pμ, pσ, pξ = [size(X, 2) for X in (Xμ, Xσ, Xξ)]
+  βμ = zeros(pμ)
+  βσ = zeros(pσ)
+  βξ = zeros(pξ)
+  βμ[1], βσ[1], βξ[1] = init
+  init = [βμ, βσ, βξ]  # redefine init in terms of βμ, βσ, βξ
+  inits = Array(Vector{Float64}, attempts)  # to store various initial valuies
+  opts = Array(Any, attempts)  # to store objects returned by optimize
+  ## finally, must define function to minimize
   function negloglikelihood(params::Vector; maxval::Float64=1.0e10, tol::Float64=1.0e-3)
     βμ = params[1:pμ]
     βσ = params[(pμ + 1):(pμ + pσ)]
@@ -35,19 +49,13 @@ function fit_mle_optim(::Type{GeneralizedExtremeValue}, y::Array{Float64}, init:
     end
     return negll
   end
-  pμ, pσ, pξ = [size(X, 2) for X in (Xμ, Xσ, Xξ)]
-  βμ = zeros(pμ)
-  βσ = zeros(pσ)
-  βξ = zeros(pξ)
-  βμ[1], βσ[1], βξ[1] = init
-  init = [βμ, βσ, βξ]  # redefine init in terms of βμ, βσ, βξ
-  inits = Array(Vector{Float64}, attempts)
-  opts = Array(Any, attempts)
+  ## begin maximum likelihood estimation
   for i in 1:attempts  # minimize log-likelihood over varying initial conditions
     if verbose println("Minimizing negative log-likelihood: attempt $i of $attempts") end
     inits[i] = init + 2.0 * rand(length(init)) - 1.0
     opts[i] = optimize(negloglikelihood, inits[i])  # minimizing negative ll is equivalent to maximizing positive ll
   end
+  ## end maximum likelihood estimation
   opts = opts[bool([opt.f_converged for opt in opts])]  # remove opts that failed to converge
   if isempty(opts)  # no MLEs obtained
     println("Failed to converge in $attempts attempts around initial values $init; returning initial values")
@@ -58,9 +66,9 @@ function fit_mle_optim(::Type{GeneralizedExtremeValue}, y::Array{Float64}, init:
   end
 end
 
-function fit_mle_optim(::Type{GeneralizedExtremeValue}, y::DataArray{Float64}, init::Vector{Float64};
-                       Xμ::DataArray{Float64} = ones(reshape(y, length(y), 1)), Xσ::DataArray{Float64} = ones(reshape(y, length(y), 1)),
-                       Xξ::DataArray{Float64} = ones(reshape(y, length(y), 1)), attempts::Int64=10, verbose::Bool=true)
+function fit_mle_optim(::Type{GeneralizedExtremeValue}, y::DataArray{Float64, 1}, init::Vector{Float64};
+                       Xμ::DataArray{Float64}=ones(y), Xσ::DataArray{Float64}=ones(y),
+                       Xξ::DataArray{Float64}=ones(y), attempts::Int64=10, verbose::Bool=false)
   # remove NAs
   these = find(!isna(y))
   if length(these) != size(y, 1)
@@ -72,9 +80,8 @@ function fit_mle_optim(::Type{GeneralizedExtremeValue}, y::DataArray{Float64}, i
   end
 
   # make sure that n matches for y, Xμ, Xσ, and Xξ
-  @assert size(y, 1) == size(Xμ, 1)
-  @assert size(y, 1) == size(Xσ, 1)
-  @assert size(y, 1) == size(Xξ, 1)
+  n = size(y, 1)
+  @assert n == size(Xμ, 1) == size(Xσ, 1) == size(Xξ, 1)
 
   # basic functionality for dataframes
   return fit_mle_optim(GeneralizedExtremeValue, array(y), init; Xμ = array(Xμ),
@@ -83,9 +90,27 @@ end
 
 
 
-function fit_mle_optim(::Type{GeneralizedPareto}, y::Vector, init::Vector;
-                       Xσ::Array{Float64}=ones(reshape(y, length(y), 1)), Xξ::Array{Float64}=ones(reshape(y, length(y), 1)),
-                       attempts::Int64=10, verbose::Bool=true)
+function fit_mle_optim(::Type{GeneralizedPareto}, y::Array{Float64, 1}, init::Vector;
+                       Xσ::Array{Float64}=ones(length(y), 1), Xξ::Array{Float64}=ones(length(y), 1),
+                       attempts::Int64=10, verbose::Bool=false)
+  # data and covariates for MLE
+  n = size(y, 1)
+  Xσ = coercematrix(Xσ, n)  # always convert to a matrix
+  Xξ = coercematrix(Xξ, n)  # always convert to a matrix
+  # set up parameter initial values before maximization
+  μ = init[1]  # threshold must be fixed for GeneralizedPareto
+  excesses = y .> μ
+  y = y[excesses]  # restrict to excesses over threshold
+  Xσ = Xσ[excesses, :]
+  Xξ = Xξ[excesses, :]
+  pσ, pξ = [size(X, 2) for X in (Xσ, Xξ)]
+  βσ = zeros(pσ)
+  βξ = zeros(pξ)
+  βσ[1], βξ[1] = init[2:3]
+  init = [βσ, βξ]  # redefine init in terms of βσ, βξ
+  inits = Array(Vector{Float64}, attempts)  # to store various initial values
+  opts = Array(Any, attempts)  # to store objects returned by optimize
+  ## finally, must define function to minimize
   function negloglikelihood(params::Vector; maxval::Float64=1.0e10, tol::Float64=1.0e-4)
     (σ, ξ) = params
     βσ = params[1:pσ]
@@ -111,23 +136,13 @@ function fit_mle_optim(::Type{GeneralizedPareto}, y::Vector, init::Vector;
     end
     return negll
   end
-  μ = init[1]  # threshold must be fixed for GeneralizedPareto
-  excesses = y .> μ
-  y = y[excesses]  # restrict to excesses over threshold
-  Xσ = Xσ[excesses, :]
-  Xξ = Xξ[excesses, :]
-  pσ, pξ = [size(X, 2) for X in (Xσ, Xξ)]
-  βσ = zeros(pσ)
-  βξ = zeros(pξ)
-  βσ[1], βξ[1] = init[2:3]
-  init = [βσ, βξ]  # redefine init in terms of βσ, βξ
-  inits = Array(Vector{Float64}, attempts)
-  opts = Array(Any, attempts)
+  ## begin maximum likelihood estimation
   for i in 1:attempts  # minimize log-likelihood over varying initial conditions
     if verbose println("Minimizing negative log-likelihood: attempt $i of $attempts") end
     inits[i] = init + 2.0 * rand(length(init)) - 1.0
     opts[i] = optimize(negloglikelihood, inits[i])  # minimizing negative ll is equivalent to maximizing positive ll
   end
+  ## end maximum likelihood estimation
   opts = opts[bool([opt.f_converged for opt in opts])]  # remove opts that failed to converge
   if isempty(opts)  # no MLEs obtained
     println("Failed to converge in $attempts attempts around initial values $init; returning initial values")
@@ -138,9 +153,9 @@ function fit_mle_optim(::Type{GeneralizedPareto}, y::Vector, init::Vector;
   end
 end
 
-function fit_mle_optim(::Type{GeneralizedPareto}, y::DataArray{Float64}, init::Vector{Float64};
-                       Xσ::DataArray{Float64} = ones(reshape(y, length(y), 1)), Xξ::DataArray{Float64} = ones(reshape(y, length(y), 1)),
-                       attempts::Int64=10, verbose::Bool=true)
+function fit_mle_optim(::Type{GeneralizedPareto}, y::DataArray{Float64, 1}, init::Vector{Float64};
+                       Xσ::DataArray{Float64}=ones(y), Xξ::DataArray{Float64}=ones(y),
+                       attempts::Int64=10, verbose::Bool=false)
   # remove NAs
   these = find(!isna(y))
   if length(these) != size(y, 1)
@@ -151,9 +166,10 @@ function fit_mle_optim(::Type{GeneralizedPareto}, y::DataArray{Float64}, init::V
   end
 
   # make sure that n matches for y, Xσ, and Xξ
-  @assert size(y, 1) == size(Xσ, 1)
-  @assert size(y, 1) == size(Xξ, 1)
+  n = size(y, 1)
+  @assert size(y, 1) == size(Xσ, 1) == size(Xξ, 1)
 
   # basic functionality for dataframes
-  return fit_mle_optim(GeneralizedPareto, array(y), init; Xσ = array(Xσ), Xξ = array(Xξ), attempts = attempts, verbose = verbose)
+  return fit_mle_optim(GeneralizedPareto, array(y), init; Xσ = array(Xσ), Xξ = array(Xξ),
+                       attempts = attempts, verbose = verbose)
 end
