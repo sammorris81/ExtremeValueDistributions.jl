@@ -9,11 +9,13 @@ n = 1000
 μₐ = 1.0
 σₐ = 2.0
 ξₐ = 0.1
-y = reshape(rand(GeneralizedExtremeValue(μₐ, σₐ, ξₐ), n), n, 1)
+y = rand(GeneralizedExtremeValue(μₐ, σₐ, ξₐ), n)
 
 # returns GeneralizedExtremeValue object with parameters as Max. Like. Estimates
 results = fit_mle_optim(GeneralizedExtremeValue, y, [0.0, 0.0, 0.0])
-
+println("μ = $(results[1])")
+println("σ = $(exp(results[2]))")
+println("ξ = $(results[3])")
 
 # Simulated example - GEV Data
 #   Y ~ GeneralizedExtremeValue(μ, σ, ξ)
@@ -29,11 +31,11 @@ X = hcat(ones(n), rand(Normal(0, 1), n))
 σₐ  = exp(X * βσₐ)
 βξₐ = 0.1
 ξₐ  = 0.1
-y = reshape([rand(GeneralizedExtremeValue(μₐ[i], σₐ[i], ξₐ), 1)[1] for i = 1:n], n, 1)
+y = [rand(GeneralizedExtremeValue(μₐ[i], σₐ[i], ξₐ), 1)[1] for i = 1:n]
 
 # to include covariates for μ, σ, or ξ, you need to include arguments
 # Xμ, Xσ, and Xξ
-results = fit_mle_optim(GeneralizedExtremeValue, vec(y), [0.5, 0.5, 0.5], Xμ = X, Xσ = X)
+results = fit_mle_optim(GeneralizedExtremeValue, y, [0.5, 0.5, 0.5], Xμ = X, Xσ = X)
 
 # Simulated example - GPD Data
 #   Y ~ GeneralizedPareto(0.0, 1.0, 0.2)
@@ -44,11 +46,11 @@ n = 1000
 μₐ = 1.0
 σₐ = 2.0
 ξₐ = 0.1
-y = reshape(rand(GeneralizedPareto(μₐ, σₐ, ξₐ), n), n, 1)
+y = rand(GeneralizedPareto(μₐ, σₐ, ξₐ), n)
 μ = fill(1.0, size(y, 1))
 
 # returns GeneralizedParetoPosterior object
-results = fit_mle_optim(GeneralizedPareto, vec(y), [1.0, 0.5, 0.5])
+results = fit_mle_optim(GeneralizedPareto, y, [1.0, 0.5, 0.5])
 
 # Simulated example - GPD Data
 #   Y ~ GeneralizedPareto(0.0, σ, ξ)
@@ -63,11 +65,10 @@ X = hcat(ones(n), rand(Normal(0, 1), n))
 σₐ  = exp(X * βσₐ)
 βξₐ = 0.1
 ξₐ  = 0.1
-y = reshape([rand(GeneralizedPareto(0.0, σₐ[i], ξₐ), 1)[1] for i = 1:n], n, 1)
-
+y = [rand(GeneralizedPareto(0.0, σₐ[i], ξₐ), 1)[1] for i = 1:n]
 
 # to include covariates for σ, or ξ, you need to include arguments Xσ, and Xξ
-results = fit_mle_optim(GeneralizedPareto, vec(y), [0.0, 1.0, 0.1], Xσ = X)
+results = fit_mle_optim(GeneralizedPareto, y, [0.0, 1.0, 0.1], Xσ = X)
 
 
 # Port Pirie data analysis
